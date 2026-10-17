@@ -27,7 +27,7 @@ export const TestimonialsPage: React.FC = () => {
 
       <section className="section-pad border-b border-rule bg-white">
         <div className="container-x">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto items-stretch">
+          <div className="grid grid-cols-2 gap-6 max-w-5xl mx-auto items-stretch">
             {TESTIMONIALS.map((item) => (
               <TestimonialCard key={item.id} testimonial={item} />
             ))}

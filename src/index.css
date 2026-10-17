@@ -999,17 +999,30 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
   .head-right .btn { display: none; }
   .starmax-logo { height: 38px; }
   .footer .starmax-logo { height: 34px; }
-  .svc-grid { grid-template-columns: 1fr; }
-  .svc, .svc:nth-child(odd) { border-right: 0; margin-right: 0; min-height: 0; }
-  .adv-grid { grid-template-columns: 1fr; }
-  .gal { grid-template-columns: 1fr; }
-  .logos { grid-template-columns: repeat(2, 1fr); }
-  .pillars-inner { grid-template-columns: 1fr; }
-  .pillar, .pillar:nth-child(2) { border-right: 0; margin-right: 0; border-bottom: 1px solid var(--color-rule); }
-  .pillar:last-child { border-bottom: 0; }
-  .checks { grid-template-columns: 1fr; }
-  .sector-grid { grid-template-columns: 1fr; }
-  .foot-grid { grid-template-columns: 1fr; }
+
+  /* Every card grid stays 2 per row on mobile */
+  .svc-grid,
+  .adv-grid,
+  .gal,
+  .sector-grid,
+  .pillars-inner,
+  .logos,
+  .foot-grid,
+  .checks { grid-template-columns: repeat(2, 1fr); }
+
+  /* Tighter spacing so two columns fit comfortably */
+  .svc { padding: 22px 16px 26px 0; min-height: 0; }
+  .svc:nth-child(odd) { margin-right: 16px; }
+  .adv-grid { gap: 14px; }
+  .adv-card { padding: 22px 18px 24px; }
+  .adv-top { margin-bottom: 16px; }
+  .sector-grid { gap: 14px; }
+  .sector-card { padding: 22px 18px 24px; }
+  .gal { gap: 12px; }
+  .pillar { padding: 24px 16px 24px 0; margin-right: 16px; }
+  .checks { gap: 12px 18px; }
+  .call .checks { grid-template-columns: repeat(2, 1fr); gap: 12px 18px; }
+  .foot-grid { gap: 28px 20px; }
   .talk a { font-size: 28px; }
   .call-form-panel { padding: 26px; }
 }
