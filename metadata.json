@@ -1,0 +1,6 @@
+{
+  "name": "Starmax Systems",
+  "description": "Starmax Systems Corporate Website — Security systems, IP CCTV surveillance, access control, automatic gates, tracking and automation solutions based in Kadavanthra, Kochi, Kerala.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
