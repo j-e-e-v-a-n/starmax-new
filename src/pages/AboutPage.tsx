@@ -2,6 +2,8 @@ import React, { useEffect } from 'react';
 import { ShieldCheck, MapPin, Wrench, Building2, CheckCircle2, ArrowRight } from 'lucide-react';
 import { Breadcrumbs } from '../components/layout/Breadcrumbs';
 import { PageHero } from '../components/layout/PageHero';
+import { WhyChooseUsSection } from '../components/home/WhyChooseUsSection';
+import { IndustriesSection } from '../components/home/IndustriesSection';
 import { Link } from '../router';
 import { SERVICES } from '../data/services';
 import { COMPANY_INFO } from '../data/company';
@@ -79,7 +81,7 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* Approach */}
-      <section className="section-pad bg-mist border-b border-rule">
+      <section className="section-pad grad-b border-b border-rule">
         <div className="container-x">
           <div className="max-w-3xl mb-12">
             <p className="label">Our methodology</p>
@@ -129,6 +131,16 @@ export const AboutPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Why choose Starmax */}
+      <div className="bg-white border-b border-rule">
+        <WhyChooseUsSection />
+      </div>
+
+      {/* Environments we secure */}
+      <div className="grad-a border-b border-rule">
+        <IndustriesSection />
+      </div>
+
       {/* Services */}
       <section className="section-pad border-b border-rule">
         <div className="container-x">
@@ -166,7 +178,7 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* Installation & Coverage */}
-      <section className="section-pad bg-mist border-b border-rule">
+      <section className="section-pad grad-b border-b border-rule">
         <div className="container-x">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
             <div>
@@ -220,7 +232,7 @@ export const AboutPage: React.FC = () => {
       </section>
 
       {/* CTA */}
-      <section className="section-pad bg-navy text-white">
+      <section className="section-pad cta-band text-white">
         <div className="container-x text-center">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-[clamp(1.6rem,3.6vw,2.4rem)] text-white font-normal">

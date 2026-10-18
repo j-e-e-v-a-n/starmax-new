@@ -9,7 +9,7 @@ interface PageHeroProps {
 
 export const PageHero: React.FC<PageHeroProps> = ({ title, lede, label, children }) => {
   return (
-    <section className="bg-mist border-b border-rule">
+    <section className="page-hero">
       <div className="container-x pt-14 pb-16 sm:pt-16 sm:pb-20">
         {label && <p className="label">{label}</p>}
         <div className="max-w-3xl">

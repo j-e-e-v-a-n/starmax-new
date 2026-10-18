@@ -2,7 +2,7 @@ import React from 'react';
 import { MapPin } from 'lucide-react';
 
 export const LocationRow: React.FC = () => {
-  const locations = ['Kochi', 'Haripad', 'Chengannur', 'Calicut'];
+  const locations = ['Kochi'];
 
   return (
     <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-4 gap-y-1.5 text-sm sm:text-[15px] pt-1">

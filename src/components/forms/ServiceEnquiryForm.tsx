@@ -168,7 +168,7 @@ export const ServiceEnquiryForm: React.FC<ServiceEnquiryFormProps> = ({ serviceT
         <Input
           label="Location / Project Area"
           required
-          placeholder="e.g. Kadavanthra, Kochi / Calicut / Haripad"
+              placeholder="e.g. Kadavanthra, Kochi"
           value={formData.location}
           onChange={(e) => setFormData({ ...formData, location: e.target.value })}
           error={errors.location}

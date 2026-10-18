@@ -24,7 +24,7 @@ const ReviewCard: React.FC<{ item: TestimonialItem; hidden?: boolean }> = ({ ite
         <img
           className="rv-avatar"
           src={item.avatar}
-          alt=""
+          alt={item.name ? `${item.name} — Starmax Systems client` : 'Client photo'}
           loading="lazy"
           decoding="async"
           referrerPolicy="no-referrer"

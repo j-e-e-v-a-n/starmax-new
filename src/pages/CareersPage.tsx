@@ -21,7 +21,7 @@ export const CareersPage: React.FC = () => {
       <PageHero
         label="Careers"
         title="Careers at Starmax Systems"
-        lede="Interested in security and network technology? Join our technician and systems engineering teams working out of Kochi, Haripad, Chengannur and Calicut."
+        lede="Interested in security and network technology? Join our technician and systems engineering teams working out of Kochi."
       />
 
       <section className="section-pad border-b border-rule">

@@ -30,27 +30,27 @@ export const ClientsPage: React.FC = () => {
             {CLIENTS.map((client) => (
               <div
                 key={client.id}
-                className="flex flex-col items-center justify-center p-5 sm:p-6 h-36 rounded-[2px] border border-rule bg-white hover:border-blue transition-colors duration-300 text-center group"
+                className="flex flex-col items-center justify-center p-4 sm:p-5 min-h-28 rounded-[2px] border border-rule bg-white hover:border-blue transition-colors duration-300 text-center group"
               >
                 {client.image || client.logo ? (
-                  <div className="flex items-center justify-center h-full w-full px-2">
+                  <div className="flex items-center justify-center h-full w-full px-2 overflow-hidden">
                     <img
                       src={client.image || client.logo}
                       alt={client.name}
-                      className="max-h-12 max-w-[140px] object-contain opacity-80 group-hover:opacity-100 transition-opacity"
+                      className="max-h-10 max-w-[130px] object-contain opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all duration-300"
                       loading="lazy"
                     />
                   </div>
                 ) : (
                   <>
-                    <div className="w-10 h-10 rounded-[2px] bg-mist border border-rule flex items-center justify-center text-blue group-hover:bg-blue group-hover:text-white transition-colors mb-3">
-                      <Building2 className="w-4 h-4" />
+                    <div className="w-9 h-9 rounded-[2px] bg-mist border border-rule flex items-center justify-center text-blue group-hover:bg-blue group-hover:text-white transition-colors mb-2.5">
+                      <Building2 className="w-3.5 h-3.5" />
                     </div>
-                    <h2 className="text-xs sm:text-sm font-sans font-semibold text-navy group-hover:text-blue transition-colors tracking-normal line-clamp-1">
+                    <h2 className="text-[10px] sm:text-[11px] font-sans font-semibold text-navy group-hover:text-blue transition-colors tracking-normal leading-snug">
                       {client.name}
                     </h2>
                     {client.industry && (
-                      <span className="text-[10px] sm:text-[11px] text-muted mt-1 line-clamp-1">
+                      <span className="text-[9px] sm:text-[10px] text-muted mt-0.5 leading-snug">
                         {client.industry}
                       </span>
                     )}
@@ -62,7 +62,7 @@ export const ClientsPage: React.FC = () => {
         </div>
       </section>
 
-      <section className="section-pad bg-navy text-white">
+      <section className="section-pad cta-band text-white">
         <div className="container-x text-center">
           <div className="max-w-2xl mx-auto">
             <h2 className="text-[clamp(1.6rem,3.6vw,2.4rem)] text-white font-normal">

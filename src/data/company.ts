@@ -29,10 +29,7 @@ export const COMPANY_INFO = {
     gstin: "32CJGPM2017L1ZD"
   },
   servicePoints: [
-    { name: "Kochi", type: "Registered Office & Central Support" },
-    { name: "Haripad", type: "Service Point" },
-    { name: "Chengannur", type: "Service Point" },
-    { name: "Calicut", type: "Service Point" }
+    { name: "Kochi", type: "Registered Office & Central Support" }
   ],
   copyright: "© 2026 Starmax Systems. All rights reserved.",
   credits: {

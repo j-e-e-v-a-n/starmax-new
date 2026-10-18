@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
 
 interface RouterContextType {
   currentPath: string;
@@ -24,27 +24,49 @@ export const Router: React.FC<RouterProps> = ({ children }) => {
     }
     return '/';
   });
+  const isFirstRender = useRef(true);
+
+  const scrollToTop = (targetPath: string) => {
+    if (typeof window === 'undefined') return;
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    // Home plays the cinematic intro and locks scroll, so jump straight to the
+    // top there; every other route keeps the current position and glides up.
+    const instant = reduce || targetPath === '/';
+    window.scrollTo({ top: 0, behavior: instant ? 'instant' : 'smooth' });
+  };
 
   const navigate = (path: string) => {
     if (path === currentPath) {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      scrollToTop(path);
       return;
     }
     window.history.pushState({}, '', path);
     setCurrentPath(path);
-    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   useEffect(() => {
     const handlePopState = () => {
       const path = window.location.pathname || '/';
       setCurrentPath(path);
-      window.scrollTo({ top: 0, behavior: 'instant' });
     };
+
+    // Start every fresh load at the top
+    window.scrollTo({ top: 0, behavior: 'instant' });
 
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
+
+  // After the new page has mounted, keep the previous scroll position for a
+  // beat and then animate up to the top of the page.
+  useEffect(() => {
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      return;
+    }
+    const id = window.requestAnimationFrame(() => scrollToTop(currentPath));
+    return () => window.cancelAnimationFrame(id);
+  }, [currentPath]);
 
   return (
     <RouterContext.Provider value={{ currentPath, navigate }}>

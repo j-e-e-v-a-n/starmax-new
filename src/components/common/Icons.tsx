@@ -34,10 +34,10 @@ export const HeroArt: React.FC = () => (
     <path className="ln draw" pathLength={1} d="M783 336V396" />
     <path className="ln draw" pathLength={1} d="M374 432v-14c0-4 3-7 7-8l18-4 14-16c2-3 5-4 8-4h26c3 0 6 1 8 4l14 16 18 4c4 1 7 4 7 8v14zM405 406l10-13h40l10 13z" />
 
-    <g className="fade">
-      <circle className="wh" cx="403" cy="432" r="8" />
-      <circle className="wh" cx="465" cy="432" r="8" />
+    <circle className="wh draw" pathLength={1} cx="403" cy="432" r="8" />
+    <circle className="wh draw" pathLength={1} cx="465" cy="432" r="8" />
 
+    <g className="fade">
       <circle className="solid" cx="360" cy="218" r="6" />
       <circle className="solid" cx="62" cy="302" r="6" />
       <circle className="solid" cx="608" cy="336" r="6" />

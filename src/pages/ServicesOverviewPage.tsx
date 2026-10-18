@@ -4,6 +4,7 @@ import { Breadcrumbs } from '../components/layout/Breadcrumbs';
 import { PageHero } from '../components/layout/PageHero';
 import { Link } from '../router';
 import { SERVICES } from '../data/services';
+import { FeaturedSection } from '../components/home/FeaturedSection';
 import { ServiceEnquiryForm } from '../components/forms/ServiceEnquiryForm';
 
 export const ServicesOverviewPage: React.FC = () => {
@@ -39,12 +40,9 @@ export const ServicesOverviewPage: React.FC = () => {
                     <img
                       src={service.image}
                       alt={service.title}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                       referrerPolicy="no-referrer"
                     />
-                    <div className="absolute top-2 left-2 sm:top-3 sm:left-3 bg-white/90 backdrop-blur-sm text-navy text-[9px] sm:text-[11px] font-mono font-semibold px-1.5 sm:px-2 py-0.5 rounded-[2px]">
-                      0{index + 1}
-                    </div>
                   </div>
 
                   <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between">
@@ -85,13 +83,16 @@ export const ServicesOverviewPage: React.FC = () => {
         </div>
       </section>
 
+      {/* Featured systems */}
+      <FeaturedSection />
+
       {/* Consultation */}
-      <section className="section-pad bg-mist">
+      <section className="section-pad grad-b">
         <div className="container-x">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
             <div className="lg:col-span-5">
               <p className="label">Need assistance?</p>
-              <h2>Request a security system consultation</h2>
+              <h2 className="text-[clamp(1.45rem,2.8vw,2rem)]">Request a security system consultation</h2>
               <p className="mt-4 text-[15px] text-muted leading-relaxed">
                 Whether you need a dedicated surveillance setup for a single storefront or a complete access control and gate automation project for a commercial business park, our team provides consultation tailored to your layout.
               </p>

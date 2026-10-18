@@ -89,12 +89,12 @@ export const GalleryPage: React.FC = () => {
                     <span className="text-[9px] sm:text-[11px] uppercase font-mono font-semibold tracking-wider text-blue">
                       {item.categoryLabel}
                     </span>
-                    <h2 className="text-xs sm:text-base font-sans font-semibold text-navy mt-1 group-hover:text-blue transition-colors tracking-normal line-clamp-1">
-                      {item.title}
-                    </h2>
-                    <p className="text-[10px] sm:text-xs text-muted mt-2 leading-relaxed line-clamp-2">
-                      {item.caption}
-                    </p>
+                <h2 className="text-xs sm:text-base font-sans font-semibold text-navy mt-1 group-hover:text-blue transition-colors tracking-normal leading-snug">
+                  {item.title}
+                </h2>
+                <p className="text-[10px] sm:text-xs text-muted mt-2 leading-relaxed">
+                  {item.caption}
+                </p>
                   </div>
                 </div>
               </div>

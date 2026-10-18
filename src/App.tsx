@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Router, useRouter } from './router';
+import { applySeo } from './lib/seo';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { QuickContactWidget } from './components/layout/QuickContactWidget';
 import { Modal } from './components/ui/Modal';
 import { CallbackForm } from './components/forms/CallbackForm';
 import { ScrollProgress } from './components/common/ScrollProgress';
-import { ScrollToTop } from './components/common/ScrollToTop';
 
 // Pages
 import { HomePage } from './pages/HomePage';
@@ -29,6 +29,10 @@ import { NotFoundPage } from './pages/NotFoundPage';
 const AppContent: React.FC = () => {
   const { currentPath } = useRouter();
   const [callbackModalOpen, setCallbackModalOpen] = useState(false);
+
+  useEffect(() => {
+    applySeo(currentPath);
+  }, [currentPath]);
 
   // Match current path to page component
   const renderRoute = () => {
@@ -83,7 +87,6 @@ const AppContent: React.FC = () => {
 
       <Footer />
       <QuickContactWidget />
-      <ScrollToTop />
 
       {/* Global Callback / Get Quote Modal */}
       <Modal

@@ -16,13 +16,11 @@ export const FinalCtaSection: React.FC = () => {
           </p>
 
           <div className="reg-ports">
-            <small>Regional offices</small>
-            {COMPANY_INFO.servicePoints.map((point) => (
-              <span key={point.name} className="reg-chip">
-                <MapPin />
-                {point.name}
-              </span>
-            ))}
+            <small>Registered office</small>
+            <span className="reg-chip">
+              <MapPin />
+              Kochi
+            </span>
           </div>
         </div>
 

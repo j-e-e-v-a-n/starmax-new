@@ -30,7 +30,7 @@ export const ContactPage: React.FC = () => {
       <PageHero
         label="Contact"
         title="Contact Starmax Systems"
-        lede="Reach out to our central office in Kadavanthra, Kochi, or connect with our regional dispatch points in Haripad, Chengannur, and Calicut for rapid technical consultation."
+        lede="Reach out to our central office in Kadavanthra, Kochi for system recommendations, site consultation and technical support across Kerala."
       >
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 sm:gap-4 mt-9">
           <a
@@ -237,24 +237,12 @@ export const ContactPage: React.FC = () => {
 
               <div className="p-6 sm:p-7 rounded-[2px] bg-mist border border-rule">
                 <div className="font-tech text-[11px] uppercase font-semibold tracking-[0.14em] text-navy mb-3">
-                  Kerala Dispatch &amp; Service Points
+                  Kerala Dispatch &amp; Office
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
                   <div className="p-2.5 bg-white rounded-[2px] border border-rule font-semibold text-navy flex items-center gap-1.5">
                     <span className="w-2 h-2 rounded-full bg-blue" />
                     <span>Kochi (Central)</span>
-                  </div>
-                  <div className="p-2.5 bg-white rounded-[2px] border border-rule font-medium text-navy flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue/70" />
-                    <span>Haripad</span>
-                  </div>
-                  <div className="p-2.5 bg-white rounded-[2px] border border-rule font-medium text-navy flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue/70" />
-                    <span>Chengannur</span>
-                  </div>
-                  <div className="p-2.5 bg-white rounded-[2px] border border-rule font-medium text-navy flex items-center gap-1.5">
-                    <span className="w-2 h-2 rounded-full bg-blue/70" />
-                    <span>Calicut</span>
                   </div>
                 </div>
               </div>

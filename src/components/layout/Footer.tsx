@@ -31,7 +31,7 @@ export const Footer: React.FC = () => {
               homes, businesses and industries across Kerala.
             </p>
             <p style={{ marginTop: 16 }}>
-              Kochi &middot; Haripad &middot; Chengannur &middot; Calicut
+              Kadavanthra, Kochi &middot; Kerala
             </p>
           </div>
 

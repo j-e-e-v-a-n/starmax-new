@@ -9,7 +9,7 @@ export const TopContactStrip: React.FC = () => {
         <div className="flex items-center justify-between h-10">
           <span className="flex items-center gap-2">
             <MapPin className="w-3.5 h-3.5 text-blue shrink-0" />
-            <span>Kadavanthra, Kochi &middot; Service points at Haripad, Chengannur &amp; Calicut</span>
+            <span>Kadavanthra, Kochi</span>
           </span>
 
           <div className="flex items-center gap-5">

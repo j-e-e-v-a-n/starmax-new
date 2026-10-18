@@ -1,0 +1,17 @@
+{
+  "name": "Starmax Systems",
+  "short_name": "Starmax",
+  "description": "Security Systems, Surveillance, Access Control, Tracking and Automation Solutions — Kochi, Kerala.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#071039",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+}
