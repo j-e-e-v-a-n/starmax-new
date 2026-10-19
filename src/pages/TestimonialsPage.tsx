@@ -5,8 +5,10 @@ import { PageHero } from '../components/layout/PageHero';
 import { Link } from '../router';
 import { TESTIMONIALS } from '../data/testimonials';
 import { TestimonialCard } from '../components/testimonials/TestimonialCard';
+import { useSiteContent } from '../lib/content';
 
 export const TestimonialsPage: React.FC = () => {
+  const testimonials = useSiteContent('testimonials', TESTIMONIALS);
   useEffect(() => {
     document.title = 'Client Testimonials | Starmax Systems Kochi';
   }, []);
@@ -28,7 +30,7 @@ export const TestimonialsPage: React.FC = () => {
       <section className="section-pad border-b border-rule bg-white">
         <div className="container-x">
           <div className="grid grid-cols-2 gap-6 max-w-5xl mx-auto items-stretch">
-            {TESTIMONIALS.map((item) => (
+            {testimonials.map((item) => (
               <TestimonialCard key={item.id} testimonial={item} />
             ))}
           </div>

@@ -5,8 +5,10 @@ import { PageHero } from '../components/layout/PageHero';
 import { Link } from '../router';
 import { Lightbox } from '../components/ui/Lightbox';
 import { GALLERY_ITEMS } from '../data/gallery';
+import { useSiteContent } from '../lib/content';
 
 export const GalleryPage: React.FC = () => {
+  const galleryItems = useSiteContent('gallery', GALLERY_ITEMS);
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
 
@@ -25,8 +27,8 @@ export const GalleryPage: React.FC = () => {
   ];
 
   const filteredItems = selectedCategory === 'all'
-    ? GALLERY_ITEMS
-    : GALLERY_ITEMS.filter((item) => item.category === selectedCategory);
+    ? galleryItems
+    : galleryItems.filter((item) => item.category === selectedCategory);
 
   return (
     <div className="bg-white">

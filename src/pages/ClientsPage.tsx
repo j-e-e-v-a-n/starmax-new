@@ -4,8 +4,10 @@ import { Breadcrumbs } from '../components/layout/Breadcrumbs';
 import { PageHero } from '../components/layout/PageHero';
 import { Link } from '../router';
 import { CLIENTS } from '../data/clients';
+import { useSiteContent } from '../lib/content';
 
 export const ClientsPage: React.FC = () => {
+  const clients = useSiteContent('clients', CLIENTS);
   useEffect(() => {
     document.title = 'Top Clients & References | Starmax Systems Kochi';
   }, []);
@@ -27,7 +29,7 @@ export const ClientsPage: React.FC = () => {
       <section className="section-pad border-b border-rule bg-white">
         <div className="container-x">
           <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3.5 sm:gap-5">
-            {CLIENTS.map((client) => (
+            {clients.map((client) => (
               <div
                 key={client.id}
                 className="flex flex-col items-center justify-center p-4 sm:p-5 min-h-28 rounded-[2px] border border-rule bg-white hover:border-blue transition-colors duration-300 text-center group"
@@ -43,7 +45,7 @@ export const ClientsPage: React.FC = () => {
                   </div>
                 ) : (
                   <>
-                    <div className="w-9 h-9 rounded-[2px] bg-mist border border-rule flex items-center justify-center text-blue group-hover:bg-blue group-hover:text-white transition-colors mb-2.5">
+                    <div className="w-9 h-9 rounded-[2px] bg-mist border border-rule flex items-center justify-center text-blue group-hover:bg-[#e8efff] group-hover:text-blue group-hover:border-blue transition-colors mb-2.5">
                       <Building2 className="w-3.5 h-3.5" />
                     </div>
                     <h2 className="text-[10px] sm:text-[11px] font-sans font-semibold text-navy group-hover:text-blue transition-colors tracking-normal leading-snug">

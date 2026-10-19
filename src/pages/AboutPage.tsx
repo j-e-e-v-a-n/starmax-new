@@ -63,17 +63,6 @@ export const AboutPage: React.FC = () => {
                     referrerPolicy="no-referrer"
                   />
                 </div>
-                <div className="p-5 bg-mist border-t border-rule">
-                  <div className="font-tech text-[12px] text-blue font-semibold uppercase tracking-[0.14em]">
-                    Registered Office
-                  </div>
-                  <div className="text-[15px] font-semibold text-navy mt-1">
-                    Kadavanthra, Kochi – 682020, Kerala
-                  </div>
-                  <div className="text-xs text-muted mt-1">
-                    GSTIN: <span className="font-mono text-navy">{COMPANY_INFO.tax.gstin}</span>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
@@ -91,7 +80,7 @@ export const AboutPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-5 sm:gap-6">
             <div className="bg-white p-7 rounded-[2px] border border-rule hover:border-blue transition-colors">
               <div className="w-11 h-11 rounded-[2px] bg-mist border border-rule flex items-center justify-center mb-5">
                 <ShieldCheck className="w-5 h-5 text-blue" />
@@ -152,7 +141,7 @@ export const AboutPage: React.FC = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             {SERVICES.map((s) => (
               <Link
                 key={s.slug}

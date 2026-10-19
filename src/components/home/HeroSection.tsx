@@ -14,7 +14,25 @@ const T = {
 
 type Phase = 'logo' | 'draw' | 'swing' | 'settle' | 'slide' | 'copy' | 'done';
 
-let hasPlayed = false;
+const INTRO_LINK_KEY = 'starmax:play-home-intro';
+
+const hasIntroRequest = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
+  try {
+    return window.sessionStorage.getItem(INTRO_LINK_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
+
+const clearIntroRequest = (): void => {
+  try {
+    window.sessionStorage.removeItem(INTRO_LINK_KEY);
+  } catch {
+    // Ignore disabled browser storage.
+  }
+};
 
 const CONES = [
   { apex: [362, 222], base1: [540, 440], base2: [330, 440] },
@@ -22,24 +40,19 @@ const CONES = [
   { apex: [606, 338], base1: [446, 440], base2: [594, 440] },
 ];
 
-const shouldPlayIntro = (): boolean => {
-  if (hasPlayed) return false;
-  if (typeof window === 'undefined') return false;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined;
-  if (nav && (nav.type === 'reload' || nav.type === 'back_forward')) return false;
-  return true;
-};
-
 const smooth = (x: number): number => {
   const c = Math.min(Math.max(x, 0), 1);
   return c * c * (3 - 2 * c);
 };
 
 export const HeroSection: React.FC = () => {
-  const [phase, setPhase] = useState<Phase>(() => (shouldPlayIntro() ? 'logo' : 'done'));
+  const [phase, setPhase] = useState<Phase>(() => (hasIntroRequest() ? 'logo' : 'done'));
   const timers = useRef<number[]>([]);
   const figureRef = useRef<HTMLElement>(null);
+
+  useEffect(() => {
+    clearIntroRequest();
+  }, []);
 
   useLayoutEffect(() => {
     const measure = () => {
@@ -50,7 +63,7 @@ export const HeroSection: React.FC = () => {
       if (r.width < 1) return;
       const dx = window.innerWidth / 2 - (r.left + r.width / 2);
       const dy = window.innerHeight / 2 - (r.top + r.height / 2);
-      const up = Math.min((window.innerWidth * 0.88) / r.width, (window.innerHeight * 0.82) / r.height);
+      const up = Math.max(1, Math.min(1.14, (window.innerWidth * 0.92) / r.width, (window.innerHeight * 0.86) / r.height));
       hero.style.setProperty('--art-dx', `${dx}px`);
       hero.style.setProperty('--art-dy', `${dy}px`);
       hero.style.setProperty('--art-up', up.toFixed(3));
@@ -64,7 +77,6 @@ export const HeroSection: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    hasPlayed = true;
     if (phase === 'done' || phase === 'copy') {
       document.body.classList.remove('intro-active');
     } else {
@@ -139,7 +151,12 @@ export const HeroSection: React.FC = () => {
   }, [phase]);
 
   return (
-    <section className={`hero p-${phase}`} id="home" data-phase={phase}>
+    <section
+      className={`hero p-${phase}`}
+      id="home"
+      data-phase={phase}
+      data-animate-art={phase !== 'done' ? 'true' : undefined}
+    >
       {phase !== 'done' && <HeroIntro />}
       <div className="container-x">
         <div className="hero-grid">

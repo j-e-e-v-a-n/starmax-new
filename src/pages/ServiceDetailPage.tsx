@@ -6,6 +6,7 @@ import { Link } from '../router';
 import { SERVICES } from '../data/services';
 import { COMPANY_INFO } from '../data/company';
 import { ServiceEnquiryForm } from '../components/forms/ServiceEnquiryForm';
+import { NotFoundPage } from './NotFoundPage';
 
 interface ServiceDetailPageProps {
   slug: string;
@@ -23,17 +24,7 @@ export const ServiceDetailPage: React.FC<ServiceDetailPageProps> = ({ slug }) =>
   }, [service]);
 
   if (!service) {
-    return (
-      <div className="py-24 text-center max-w-xl mx-auto px-4">
-        <h1 className="text-[2rem] font-normal text-navy">Service Not Found</h1>
-        <p className="text-sm text-muted mt-3 mb-7">
-          The requested service page does not exist in our system.
-        </p>
-        <Link to="/services" className="btn solid">
-          Return to Services Overview
-        </Link>
-      </div>
-    );
+    return <NotFoundPage title="Service not found" message="This service page is unavailable. Browse our security and network solutions to find the system you need." />;
   }
 
   const related = SERVICES.filter((s) => service.relatedServices.includes(s.slug));

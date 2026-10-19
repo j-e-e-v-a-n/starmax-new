@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { Link } from '../../router';
 import { GALLERY_ITEMS } from '../../data/gallery';
 import { Lightbox } from '../ui/Lightbox';
+import { useSiteContent } from '../../lib/content';
 
 export const GalleryPreviewSection: React.FC = () => {
+  const gallery = useSiteContent('gallery', GALLERY_ITEMS);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
-  const items = GALLERY_ITEMS.slice(0, 4);
+  const items = gallery.slice(0, 4);
 
   return (
     <section className="section-pad" id="gallery">

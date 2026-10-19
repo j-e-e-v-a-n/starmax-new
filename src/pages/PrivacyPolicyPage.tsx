@@ -38,7 +38,7 @@ export const PrivacyPolicyPage: React.FC = () => {
             </p>
             <ul className="list-disc pl-5 space-y-2 text-[15px]">
               <li><strong className="text-navy">Contact Enquiries &amp; Callbacks:</strong> Full name, telephone number, email address, company or establishment name, site location, and the nature of your security or automation enquiry.</li>
-              <li><strong className="text-navy">Career Applications:</strong> Full name, email address, date of birth, present address, educational qualification, and resume / CV documents that you upload.</li>
+              <li><strong className="text-navy">Career Applications:</strong> Full name, email address, educational qualification, and the resume / CV document you upload.</li>
             </ul>
           </div>
 

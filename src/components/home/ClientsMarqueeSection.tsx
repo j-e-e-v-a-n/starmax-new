@@ -2,6 +2,7 @@ import React from 'react';
 import { Link } from '../../router';
 import { CLIENTS } from '../../data/clients';
 import { ClientItem } from '../../types';
+import { useSiteContent } from '../../lib/content';
 
 const renderCell = (client: ClientItem, key: string) => {
   const src = client.logo || client.image;
@@ -17,8 +18,9 @@ const renderCell = (client: ClientItem, key: string) => {
 };
 
 export const ClientsMarqueeSection: React.FC = () => {
-  const rowA = CLIENTS.filter((_, i) => i % 2 === 0);
-  const rowB = CLIENTS.filter((_, i) => i % 2 === 1);
+  const clients = useSiteContent('clients', CLIENTS);
+  const rowA = clients.filter((_, i) => i % 2 === 0);
+  const rowB = clients.filter((_, i) => i % 2 === 1);
   const top = [...rowA, ...rowA];
   const bottom = [...rowB, ...rowB];
 

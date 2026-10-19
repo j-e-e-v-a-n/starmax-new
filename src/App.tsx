@@ -25,6 +25,7 @@ import { TestimonialsPage } from './pages/TestimonialsPage';
 import { ContactPage } from './pages/ContactPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
 import { NotFoundPage } from './pages/NotFoundPage';
+import { AdminPage } from './pages/AdminPage';
 
 const AppContent: React.FC = () => {
   const { currentPath } = useRouter();
@@ -71,6 +72,9 @@ const AppContent: React.FC = () => {
     }
     if (normalized === '/privacy-policy') {
       return <PrivacyPolicyPage />;
+    }
+    if (normalized === '/admin') {
+      return <AdminPage />;
     }
 
     return <NotFoundPage />;

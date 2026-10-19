@@ -1,4 +1,5 @@
 import React from 'react';
+import starmaxLogo from '../../assets/icon/logo.png';
 
 /**
  * Hero artwork: a house with several cameras, an automatic gate, a card reader,
@@ -14,9 +15,9 @@ export const HeroArt: React.FC = () => (
     role="img"
     aria-label="Line drawing of a modern house with several security cameras, an automatic sliding gate, a card reader, a GPS-tracked vehicle, a network node and a speaker"
   >
-    <polygon className="cone fade" points="362,222 540,440 330,440" />
-    <polygon className="cone fade" points="62,304 14,440 150,440" />
-    <polygon className="cone fade" points="606,338 446,440 594,440" />
+    <polygon className="cone surveillance-cone" points="362,222 540,440 330,440" />
+    <polygon className="cone surveillance-cone" points="62,304 14,440 150,440" />
+    <polygon className="cone surveillance-cone" points="606,338 446,440 594,440" />
 
     <path className="ln draw" pathLength={1} d="M10 440H810" />
     <path className="ln draw heavy" pathLength={1} d="M100 210H372" />
@@ -37,7 +38,7 @@ export const HeroArt: React.FC = () => (
     <circle className="wh draw" pathLength={1} cx="403" cy="432" r="8" />
     <circle className="wh draw" pathLength={1} cx="465" cy="432" r="8" />
 
-    <g className="fade">
+    <g className="hero-devices">
       <circle className="solid" cx="360" cy="218" r="6" />
       <circle className="solid" cx="62" cy="302" r="6" />
       <circle className="solid" cx="608" cy="336" r="6" />
@@ -49,14 +50,17 @@ export const HeroArt: React.FC = () => (
 
       <path className="dev" d="M434 372c-8-9-12-14-12-20a12 12 0 0 1 24 0c0 6-4 11-12 20z" />
       <circle className="solid" cx="434" cy="352" r="4.5" />
-      <path className="bl op" d="M423 336a14 14 0 0 1 22 0M417 330a22 22 0 0 1 34 0" />
-
       <path className="bl" d="M236 210V187" />
       <circle className="solid" cx="236" cy="184" r="3" />
-      <path className="bl" d="M229 177A10 10 0 0 1 243 177M223 171A18 18 0 0 1 249 171M218 166A26 26 0 0 1 254 166" />
 
       <path className="dev" d="M772 318h10l12-8v32l-12-8h-10z" />
       <path className="bl op" d="M800 322a8 8 0 0 1 0 12M806 318a14 14 0 0 1 0 20" />
+    </g>
+    <path className="bl wifi-pop" d="M229 177A10 10 0 0 1 243 177M223 171A18 18 0 0 1 249 171M218 166A26 26 0 0 1 254 166" />
+    <path className="bl op wifi-pop" d="M423 336a14 14 0 0 1 22 0M417 330a22 22 0 0 1 34 0" />
+    <g className="hero-brand" aria-hidden="true">
+      <rect x="645" y="145" width="138" height="48" rx="8" fill="#fff" stroke="#d6e0f5" />
+      <image href={starmaxLogo} x="655" y="150" width="118" height="38" preserveAspectRatio="xMidYMid meet" />
     </g>
   </svg>
 );

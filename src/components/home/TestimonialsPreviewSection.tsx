@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { Link } from '../../router';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { TESTIMONIALS } from '../../data/testimonials';
+import { useSiteContent } from '../../lib/content';
 import { TestimonialItem } from '../../types';
 
 const getInitials = (name?: string) => {
@@ -44,7 +45,8 @@ const ReviewCard: React.FC<{ item: TestimonialItem; hidden?: boolean }> = ({ ite
 );
 
 export const TestimonialsPreviewSection: React.FC = () => {
-  const N = TESTIMONIALS.length;
+  const testimonials = useSiteContent('testimonials', TESTIMONIALS);
+  const N = testimonials.length;
   const [perView, setPerView] = useState(3);
   const [step, setStep] = useState(0);
   const [noAnim, setNoAnim] = useState(false);
@@ -126,7 +128,7 @@ export const TestimonialsPreviewSection: React.FC = () => {
   const active = ((step % pages) + pages) % pages;
 
   const track = Array.from({ length: copies }).flatMap((_, c) =>
-    TESTIMONIALS.map((item) => ({ item, key: `c${c}-${item.id}`, copy: c }))
+    testimonials.map((item) => ({ item, key: `c${c}-${item.id}`, copy: c }))
   );
 
   return (

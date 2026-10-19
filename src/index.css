@@ -11,7 +11,7 @@
   --color-blue: #1a3bb0;
   --color-blue-dark: #0f2270;
   --color-blue-soft: #e6edfd;
-  --color-mist: #e6edfd;
+  --color-mist: #f4f7fd;
   --color-muted: #4b5a76;
   --color-rule: #d6e0f5;
   --color-hairline: #e4e7ec;
@@ -57,8 +57,8 @@
   --font-tech: "Hanken Grotesk", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 :root {
-  --grad-a: linear-gradient(180deg, #ffffff 0%, #e6edfd 100%);
-  --grad-b: linear-gradient(180deg, #e6edfd 0%, #ffffff 100%);
+  --grad-a: linear-gradient(180deg, #ffffff 0%, #fbfcff 48%, #f5f8fe 100%);
+  --grad-b: linear-gradient(180deg, #f5f8fe 0%, #fbfcff 52%, #ffffff 100%);
 }
 html {
   overflow-x: clip;
@@ -261,6 +261,7 @@ body {
     scroll-behavior: auto !important;
   }
 }
+
 /* ============================================================
    REFERENCE LAYOUT â€” ported from the approved HTML design
    (header, hero line-art, pillars, section grids, footer)
@@ -378,7 +379,7 @@ body {
    Phases: logo → draw → swing → settle → slide → copy → done
    JS measures the art slot and sets:
      --art-dx / --art-dy = vector from art centre to viewport centre
-     --art-up = scale that fills the viewport
+     --art-up = a restrained intro scale, capped near the natural size
    Cones are swung by JS (point morphing), not CSS rotation.
    ============================================================ */
 
@@ -400,7 +401,7 @@ body.intro-active .header {
   z-index: 90;
   display: grid;
   place-items: center;
-  background: linear-gradient(180deg, #ffffff 0%, #eef2fb 100%);
+  background: var(--grad-a);
   animation: hi-out 0.7s ease 1.5s forwards;
   pointer-events: none;
 }
@@ -556,7 +557,7 @@ body.intro-active .header {
   position: relative;
   z-index: 80;
   opacity: 1;
-  transform: translate(var(--art-dx, 0px), var(--art-dy, 0px)) scale(var(--art-up, 1.7));
+  transform: translate(var(--art-dx, 0px), var(--art-dy, 0px)) scale(var(--art-up, 1.14));
   transform-origin: center center;
   will-change: transform;
 }
@@ -566,10 +567,10 @@ body.intro-active .header {
 @keyframes art-arrive {
   from {
     transform: translate(var(--art-dx, 0px), var(--art-dy, 0px))
-      scale(calc(var(--art-up, 1.7) * 1.07));
+      scale(calc(var(--art-up, 1.14) * 1.025));
   }
   to {
-    transform: translate(var(--art-dx, 0px), var(--art-dy, 0px)) scale(var(--art-up, 1.7));
+    transform: translate(var(--art-dx, 0px), var(--art-dy, 0px)) scale(var(--art-up, 1.14));
   }
 }
 /* settle: slow zoom out toward screen centre */
@@ -582,14 +583,14 @@ body.intro-active .header {
 }
 @keyframes art-zoom-out {
   from {
-    transform: translate(var(--art-dx, 0px), var(--art-dy, 0px)) scale(var(--art-up, 1.7));
+    transform: translate(var(--art-dx, 0px), var(--art-dy, 0px)) scale(var(--art-up, 1.14));
   }
   to {
     transform: translate(var(--art-dx, 0px), var(--art-dy, 0px))
-      scale(calc(var(--art-up, 1.7) * 0.7));
+      scale(1);
   }
 }
-/* slide: slow travel from centre into the grid slot (identity transform) */
+/* Slide from the viewport centre back to the original grid position at natural size. */
 .hero.p-slide .hero-art-wrap {
   position: relative;
   z-index: 80;
@@ -600,7 +601,7 @@ body.intro-active .header {
 @keyframes art-slide {
   from {
     transform: translate(var(--art-dx, 0px), var(--art-dy, 0px))
-      scale(calc(var(--art-up, 1.7) * 0.7));
+      scale(1);
   }
   to { transform: translate(0, 0) scale(1); }
 }
@@ -685,14 +686,21 @@ body.intro-active .header {
 }
 /* --- Inner-page hero band (fades light blue, no hard switch) --- */
 .page-hero {
-  background: var(--grad-b);
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+  background: var(--grad-a);
   border-bottom: 1px solid var(--color-rule);
 }
+.page-hero-inner { position: relative; isolation: isolate; }
+.page-hero-copy { position: relative; z-index: 1; }
 .page-hero h1 {
-  font-size: clamp(1.9rem, 3.8vw, 3rem);
+  max-width: 18ch;
+  font-size: clamp(2rem, 4vw, 2.9rem);
   line-height: 1.08;
   letter-spacing: -0.025em;
 }
+.page-hero .lead { max-width: 56ch; font-size: 18px; line-height: 1.6; }
 /* --- Pillars band --- */
 .pillars {
   margin-top: 0;
@@ -1294,9 +1302,10 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
   .nf-pulse { animation: none; }
   .nf-blip,
   .nf-pulse { opacity: 0.35; }
-  .nf-shield,
-  .nf-mark,
-  .nf-mark-dot { animation: none; stroke-dashoffset: 0; opacity: 1; }
+  .nf-page,
+  .nf-page-fold,
+  .nf-page-line,
+  .nf-search { animation: none; stroke-dashoffset: 0; opacity: 1; }
   /* disable scroll reveal for reduced motion */
   .reveal,
   .reveal-fade,
@@ -1398,7 +1407,10 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
 .nf {
   display: flex;
   align-items: center;
-  padding-block: 96px;
+  min-height: min(720px, calc(100svh - 76px));
+  padding-block: clamp(64px, 9vh, 112px);
+  background: var(--grad-a);
+  border-bottom: 1px solid var(--color-hairline);
 }
 .nf-inner {
   display: grid;
@@ -1418,11 +1430,15 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
 }
 .nf-copy h1 {
   margin: 14px 0 0;
-  font-size: clamp(1.9rem, 4vw, 3rem);
+  max-width: 13ch;
+  font-size: clamp(2rem, 4vw, 2.9rem);
   line-height: 1.08;
 }
-.nf-copy .sub {
+.nf-copy .lead {
   margin-top: 20px;
+  max-width: 50ch;
+  font-size: 18px;
+  line-height: 1.6;
 }
 .nf-actions {
   margin-top: 34px;
@@ -1465,28 +1481,37 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
   animation: nf-pulse 3.4s ease-out infinite;
 }
 .nf-pulse-2 { animation-delay: 1.7s; }
-.nf-shield {
+.nf-page {
   fill: #fff;
   fill-opacity: 0;
   stroke: var(--color-blue);
-  stroke-width: 2.5;
+  stroke-width: 2;
   stroke-linejoin: round;
-  stroke-dasharray: 430;
-  stroke-dashoffset: 430;
+  stroke-dasharray: 300;
+  stroke-dashoffset: 300;
   animation: nf-draw 1.7s cubic-bezier(0.65, 0, 0.35, 1) forwards,
     nf-fill 0.9s ease 0.6s forwards;
 }
-.nf-mark {
+.nf-page-fold,
+.nf-page-line {
+  fill: none;
   stroke: var(--color-blue);
-  stroke-width: 4.5;
+  stroke-width: 2;
   stroke-linecap: round;
-  opacity: 0;
-  animation: nf-fade 0.5s ease 1.05s forwards;
+  stroke-linejoin: round;
+  stroke-dasharray: 70;
+  stroke-dashoffset: 70;
+  animation: nf-draw 0.8s ease 0.45s forwards;
 }
-.nf-mark-dot {
-  fill: var(--color-blue);
+.nf-search {
+  fill: none;
+  stroke: var(--color-blue);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 100;
+  stroke-dashoffset: 100;
   opacity: 0;
-  animation: nf-fade 0.5s ease 1.3s forwards;
+  animation: nf-draw 0.65s ease 1s forwards, nf-fade 0.3s ease 1s forwards;
 }
 @keyframes nf-sweep {
   to { transform: rotate(360deg); }
@@ -1509,7 +1534,8 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
   to { opacity: 1; }
 }
 @media (max-width: 860px) {
-  .nf { padding-block: 64px; }
+  .page-hero h1 { max-width: 22ch; }
+  .nf { min-height: 0; padding-block: 64px; }
   .nf-inner {
     grid-template-columns: 1fr;
     gap: 48px;
@@ -1519,5 +1545,73 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
   .nf-svg { width: min(100%, 300px); }
   .nf-actions { justify-content: center; }
 }
+@media (max-width: 560px) {
+  .page-hero .lead, .nf-copy .lead { font-size: 16px; }
+  .nf-copy h1 { margin-inline: auto; }
+}
 
 /* Scroll-to-top removed - auto-scroll on route change */
+
+/* Final shared layout refinements (kept after component styles for consistency). */
+body { background: #fff; }
+.container-x { max-width: 1280px; }
+.section-pad { padding-block: clamp(4rem, 8vw, 7rem); }
+.page-hero-inner { padding-block: clamp(3rem, 7vw, 5.5rem); }
+.page-hero .lead { color: #465675; }
+.page-hero { background: linear-gradient(180deg, #fff 0%, #fbfcff 52%, #f5f8fe 100%); }
+.bg-mist { background-color: #f4f7fd; }
+.hero-grid { grid-template-columns: minmax(0, .92fr) minmax(0, 1.08fr); gap: clamp(2rem, 5vw, 4.5rem); }
+.hero .hero-copy { max-width: 39rem; }
+.hero h1 { font-size: clamp(2.35rem, 4.2vw, 3.8rem); line-height: 1.04; }
+.hero p.lead { font-size: clamp(1.05rem, 1.5vw, 1.2rem); line-height: 1.7; }
+.art { max-height: 470px; }
+.footer { padding-block: 4.5rem 2.5rem; }
+.foot-grid { gap: clamp(1.5rem, 4vw, 3.5rem); }
+.nav { gap: clamp(12px, 1.8vw, 24px); font-size: 14px; }
+.nav a { white-space: nowrap; }
+.hero[data-animate-art="true"] .wifi-pop { opacity: 0; transform-box: fill-box; transform-origin: center; animation: wifi-pop-in .55s cubic-bezier(.2,.8,.2,1) 1.5s both; }
+.hero[data-animate-art="true"] .hero-devices { opacity: 0; transform: translateY(10px); animation: device-arrive .65s cubic-bezier(.2,.8,.2,1) 2.2s both; }
+.hero[data-animate-art="true"] .surveillance-cone { opacity: 0; transform-box: fill-box; transform-origin: top center; animation: surveillance-arrive .8s ease-out 3.05s both, surveillance-scan 4s ease-in-out 4s infinite alternate; }
+.hero[data-animate-art="true"] .surveillance-cone:nth-child(2) { animation-delay: 3.22s, 4.2s; }
+.hero[data-animate-art="true"] .surveillance-cone:nth-child(3) { animation-delay: 3.38s, 4.5s; }
+.hero[data-animate-art="true"] .hero-brand { opacity: 0; transform: translateY(7px); animation: device-arrive .6s ease-out 2.55s both; }
+@keyframes wifi-pop-in { from { opacity: 0; transform: scale(.35); } 70% { opacity: 1; transform: scale(1.14); } to { opacity: 1; transform: scale(1); } }
+@keyframes device-arrive { to { opacity: 1; transform: translateY(0); } }
+@keyframes surveillance-arrive { from { opacity: 0; transform: scaleY(.5); } to { opacity: .72; transform: scaleY(1); } }
+@keyframes surveillance-scan { from { opacity: .48; } to { opacity: .78; } }
+@media (max-width: 860px) {
+  .hero-grid { grid-template-columns: 1fr; gap: 1.75rem; }
+  .hero { min-height: auto; padding-block: 3rem; }
+  .hero .hero-art-wrap { max-width: 740px; margin-inline: auto; }
+  .art { max-height: none; }
+}
+@media (max-width: 640px) {
+  body { font-size: 16px; }
+  .container-x { padding-inline: 1.125rem; }
+  .section-pad { padding-block: 3.75rem; }
+  .header-inner { height: 68px; gap: 12px; }
+  .header .starmax-logo { height: 36px; max-width: 176px; }
+  .nav.open { top: 68px; padding-inline: 1.125rem; max-height: calc(100dvh - 68px); overflow-y: auto; }
+  .hero { padding-block: 2.5rem; }
+  .hero h1 { font-size: clamp(2.15rem, 10vw, 3.2rem); }
+  .hero p.lead { font-size: 1rem; }
+  .hero .actions { gap: 10px; }
+  .hero .actions .btn { width: 100%; }
+  .hero-art-wrap { margin-inline: -.5rem; }
+  .page-hero-inner { padding-block: 2.75rem; }
+  .page-hero .lead { font-size: 1rem; }
+  .foot-grid { grid-template-columns: 1fr 1fr; }
+  .footer { padding-block: 3.5rem 2rem; }
+  .call-form-panel { padding: 1.25rem; }
+  .hero[data-animate-art="true"] .surveillance-cone { animation: none; opacity: .62; transform: none; }
+}
+@media (max-width: 420px) {
+  .foot-grid { grid-template-columns: 1fr; }
+  .hero .presence { gap: 8px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .hero[data-animate-art="true"] .wifi-pop,
+  .hero[data-animate-art="true"] .hero-devices,
+  .hero[data-animate-art="true"] .surveillance-cone,
+  .hero[data-animate-art="true"] .hero-brand { animation: none; opacity: 1; transform: none; }
+}

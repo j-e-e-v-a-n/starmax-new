@@ -19,6 +19,7 @@ export interface ClientItem {
   industry?: string;
   logo?: string;
   image?: string;
+  active?: boolean;
 }
 
 export interface TestimonialItem {
@@ -29,6 +30,7 @@ export interface TestimonialItem {
   clientReference?: string;
   context?: string;
   rating?: number;
+  active?: boolean;
 }
 
 export interface GalleryItem {
@@ -38,6 +40,7 @@ export interface GalleryItem {
   categoryLabel: string;
   image: string;
   caption: string;
+  active?: boolean;
 }
 
 export interface CallbackRequest {
@@ -75,10 +78,6 @@ export interface ServiceEnquiryRequest {
 export interface CareerApplication {
   fullName: string;
   email: string;
-  nationality?: string;
-  presentAddress?: string;
-  dateOfBirth?: string;
-  maritalStatus?: string;
   educationalQualification: string;
   resumeFileName?: string;
   consent: boolean;

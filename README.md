@@ -102,10 +102,25 @@ Create a `.env` file based on `.env.example`:
 CONTACT_EMAIL_RECIPIENT="info@starmaxsystems.com"
 BUSINESS_EMAIL_RECIPIENT="eldho@starmaxsystems.com"
 
-# Optional SMTP Mail Server settings
-SMTP_HOST="smtp.example.com"
+# SMTP mail settings (Google Workspace example; use an app password)
+SMTP_HOST="smtp.gmail.com"
 SMTP_PORT="587"
+SMTP_SECURE="false"
 SMTP_USER="username"
-SMTP_PASS="password"
-SMTP_FROM="no-reply@starmaxsystems.com"
+SMTP_PASSWORD="google-workspace-app-password"
+SMTP_FROM="mailer@starmaxsystems.com"
+
+# Database, first admin login, and session signing
+MONGODB_URI="mongodb+srv://..."
+MONGODB_DB="starmax"
+ADMIN_EMAIL="admin@starmaxsystems.com"
+ADMIN_PASSWORD="use-a-long-unique-password"
+ADMIN_JWT_SECRET="use-a-long-random-secret"
+
+# Image uploads from the admin panel
+IMAGEKIT_PUBLIC_KEY="public_..."
+IMAGEKIT_PRIVATE_KEY="private_..."
+IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/your_imagekit_id"
 ```
+
+Restart the development server after changing `.env`. Open `/admin` to sign in with `ADMIN_EMAIL` and `ADMIN_PASSWORD`. On first login, the owner account and starter website content are initialized in MongoDB. Add other staff accounts from the **Admins** tab. Configure the same values in your production host's environment settings before deploying; local `.env` values do not transfer to Vercel.

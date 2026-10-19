@@ -27,6 +27,7 @@ export default defineConfig(() => {
       alias: {
         '@': path.resolve(import.meta.dirname || process.cwd(), './src'),
       },
+      build: { outDir: 'dist' },
     },
     server: {
       // HMR is disabled in AI Studio via DISABLE_HMR env var.

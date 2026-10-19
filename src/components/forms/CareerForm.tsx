@@ -1,8 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { CheckCircle2, AlertCircle, UploadCloud, FileText, X } from 'lucide-react';
 import { Input } from '../ui/Input';
-import { Select } from '../ui/Select';
-import { Textarea } from '../ui/Textarea';
 import { Button } from '../ui/button';
 import { submitCareerApplication } from '../../lib/api';
 
@@ -10,12 +8,8 @@ export const CareerForm: React.FC = () => {
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
-    nationality: 'Indian',
-    presentAddress: '',
-    dateOfBirth: '',
-    maritalStatus: 'Single',
     educationalQualification: '',
-    consent: true
+    consent: false
   });
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -24,14 +18,7 @@ export const CareerForm: React.FC = () => {
 
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
-  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
-
-  const maritalOptions = [
-    { value: 'Single', label: 'Single' },
-    { value: 'Married', label: 'Married' },
-    { value: 'Divorced', label: 'Divorced' },
-    { value: 'Widowed', label: 'Widowed' }
-  ];
+  const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'warning' | 'error'; text: string } | null>(null);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFileError(null);
@@ -105,16 +92,13 @@ export const CareerForm: React.FC = () => {
         },
         selectedFile
       );
-      setStatusMessage({ type: 'success', text: res.message });
+      const emailStatus = (res.data as { emailStatus?: string } | undefined)?.emailStatus;
+      setStatusMessage({ type: emailStatus === 'sent' ? 'success' : 'warning', text: res.message });
       setFormData({
         fullName: '',
         email: '',
-        nationality: 'Indian',
-        presentAddress: '',
-        dateOfBirth: '',
-        maritalStatus: 'Single',
         educationalQualification: '',
-        consent: true
+        consent: false
       });
       removeFile();
     } catch (err: unknown) {
@@ -132,7 +116,9 @@ export const CareerForm: React.FC = () => {
           className={`p-4 rounded-[2px] flex items-start gap-3 text-sm ${
             statusMessage.type === 'success'
               ? 'bg-[#eef8f1] text-[#1f6b45] border border-[#cfe9d8]'
-              : 'bg-red-50 text-red-800 border border-red-200'
+              : statusMessage.type === 'warning'
+                ? 'bg-amber-50 text-amber-900 border border-amber-200'
+                : 'bg-red-50 text-red-800 border border-red-200'
           }`}
           role="alert"
         >
@@ -166,29 +152,6 @@ export const CareerForm: React.FC = () => {
         />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <Input
-          label="Nationality"
-          placeholder="e.g. Indian"
-          value={formData.nationality}
-          onChange={(e) => setFormData({ ...formData, nationality: e.target.value })}
-        />
-
-        <Input
-          label="Date of Birth"
-          type="date"
-          value={formData.dateOfBirth}
-          onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-        />
-
-        <Select
-          label="Marital Status"
-          options={maritalOptions}
-          value={formData.maritalStatus}
-          onChange={(e) => setFormData({ ...formData, maritalStatus: e.target.value })}
-        />
-      </div>
-
       <Input
         label="Educational Qualification"
         required
@@ -196,14 +159,6 @@ export const CareerForm: React.FC = () => {
         value={formData.educationalQualification}
         onChange={(e) => setFormData({ ...formData, educationalQualification: e.target.value })}
         error={errors.educationalQualification}
-      />
-
-      <Textarea
-        label="Present Address"
-        rows={3}
-        placeholder="City, District, State, Pincode"
-        value={formData.presentAddress}
-        onChange={(e) => setFormData({ ...formData, presentAddress: e.target.value })}
       />
 
       {/* CV / Resume Upload */}

@@ -98,6 +98,13 @@ export const Link: React.FC<LinkProps> = ({
     // If not external and not modified click (cmd/ctrl)
     if (!e.defaultPrevented && !e.metaKey && !e.ctrlKey && !to.startsWith('http') && !to.startsWith('tel:') && !to.startsWith('mailto:')) {
       e.preventDefault();
+      if (to === '/' && currentPath !== '/' && typeof window !== 'undefined') {
+        try {
+          window.sessionStorage.setItem('starmax:play-home-intro', '1');
+        } catch {
+          // The home page still works when browser storage is unavailable.
+        }
+      }
       navigate(to);
     }
   };

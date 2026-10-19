@@ -29,7 +29,7 @@ export const ServicesOverviewPage: React.FC = () => {
       {/* Services Grid */}
       <section className="section-pad border-b border-rule bg-white">
         <div className="container-x">
-          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
             {SERVICES.map((service, index) => (
               <div
                 key={service.slug}
@@ -47,10 +47,10 @@ export const ServicesOverviewPage: React.FC = () => {
 
                   <div className="p-3 sm:p-5 flex-1 flex flex-col justify-between">
                     <div>
-                      <h2 className="text-xs sm:text-base font-sans font-semibold text-navy group-hover:text-blue transition-colors mb-1 sm:mb-2 tracking-normal line-clamp-2 leading-snug">
+                      <h2 className="text-sm sm:text-base font-sans font-semibold text-navy group-hover:text-blue transition-colors mb-2 tracking-normal line-clamp-2 leading-snug">
                         {service.title}
                       </h2>
-                      <p className="text-[11px] sm:text-xs text-muted leading-relaxed mb-2 sm:mb-4 line-clamp-2 sm:line-clamp-3">
+                      <p className="text-xs text-muted leading-relaxed mb-3 sm:mb-4 line-clamp-3">
                         {service.shortDescription}
                       </p>
 

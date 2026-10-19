@@ -4,7 +4,6 @@ import { Input } from '../ui/Input';
 import { Select } from '../ui/Select';
 import { Textarea } from '../ui/Textarea';
 import { Button } from '../ui/button';
-import { SERVICES } from '../../data/services';
 import { submitContactRequest } from '../../lib/api';
 
 export const ContactForm: React.FC = () => {
@@ -16,7 +15,7 @@ export const ContactForm: React.FC = () => {
     service: 'General Enquiry',
     subject: '',
     message: '',
-    consent: true
+    consent: false
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -24,8 +23,15 @@ export const ContactForm: React.FC = () => {
   const [statusMessage, setStatusMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
 
   const serviceOptions = [
-    { value: 'General Enquiry', label: 'General Corporate Enquiry' },
-    ...SERVICES.map((s) => ({ value: s.title, label: s.title }))
+    { value: 'General Corporate Enquiry', label: 'General Corporate Enquiry' },
+    { value: 'IP CCTV Systems', label: 'IP CCTV Systems' },
+    { value: 'GPS Tracking Systems', label: 'GPS Tracking Systems' },
+    { value: 'Access Control Systems', label: 'Access Control Systems' },
+    { value: 'Video Door Phone Systems', label: 'Video Door Phone Systems' },
+    { value: 'Automatic Gate Systems', label: 'Automatic Gate Systems' },
+    { value: 'Intercom and EPABX Systems', label: 'Intercom and EPABX Systems' },
+    { value: 'Time and Attendance Systems', label: 'Time and Attendance Systems' },
+    { value: 'Home Automation Systems', label: 'Home Automation Systems' },
   ];
 
   const validate = () => {
@@ -72,7 +78,7 @@ export const ContactForm: React.FC = () => {
         service: 'General Enquiry',
         subject: '',
         message: '',
-        consent: true
+        consent: false
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'An error occurred while sending your message. Please try again.';
