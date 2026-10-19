@@ -14,25 +14,13 @@ const T = {
 
 type Phase = 'logo' | 'draw' | 'swing' | 'settle' | 'slide' | 'copy' | 'done';
 
-const INTRO_LINK_KEY = 'starmax:play-home-intro';
-
-const hasIntroRequest = (): boolean => {
-  if (typeof window === 'undefined') return false;
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false;
-  try {
-    return window.sessionStorage.getItem(INTRO_LINK_KEY) === '1';
-  } catch {
-    return false;
-  }
-};
-
-const clearIntroRequest = (): void => {
-  try {
-    window.sessionStorage.removeItem(INTRO_LINK_KEY);
-  } catch {
-    // Ignore disabled browser storage.
-  }
-};
+const navigation = typeof window !== 'undefined'
+  ? performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming | undefined
+  : undefined;
+const initialHomeVisit = typeof window !== 'undefined'
+  && (window.location.pathname === '/' || window.location.pathname === '')
+  && navigation?.type === 'navigate';
+let initialHomeIntroPending = initialHomeVisit;
 
 const CONES = [
   { apex: [362, 222], base1: [540, 440], base2: [330, 440] },
@@ -46,12 +34,16 @@ const smooth = (x: number): number => {
 };
 
 export const HeroSection: React.FC = () => {
-  const [phase, setPhase] = useState<Phase>(() => (hasIntroRequest() ? 'logo' : 'done'));
+  const [phase, setPhase] = useState<Phase>(() => (
+    initialHomeIntroPending && !window.matchMedia('(prefers-reduced-motion: reduce)').matches
+      ? 'logo'
+      : 'done'
+  ));
   const timers = useRef<number[]>([]);
   const figureRef = useRef<HTMLElement>(null);
 
   useEffect(() => {
-    clearIntroRequest();
+    initialHomeIntroPending = false;
   }, []);
 
   useLayoutEffect(() => {
