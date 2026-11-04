@@ -123,4 +123,24 @@ IMAGEKIT_PRIVATE_KEY="private_..."
 IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/your_imagekit_id"
 ```
 
-Restart the development server after changing `.env`. Open `/admin` to sign in with `ADMIN_EMAIL` and `ADMIN_PASSWORD`. On first login, the owner account and starter website content are initialized in MongoDB. Add other staff accounts from the **Admins** tab. Configure the same values in your production host's environment settings before deploying; local `.env` values do not transfer to Vercel.
+Restart the development server after changing `.env`. Open `/admin` to sign in with `ADMIN_EMAIL` and `ADMIN_PASSWORD`. On first login, the owner account and starter website content are initialized in MongoDB. Add other staff accounts from the **Admins** tab. Configure the same values in your production host's environment settings before deploying; local `.env` values do not transfer to your production host.
+
+## 6. Deploying the full application to cPanel
+
+The Express server serves both the built frontend and the `/api/*` backend. cPanel's Passenger startup file is `app.js`; set the application root to the repository root and the startup file to `app.js`. The Git deployment hook installs production dependencies and restarts Passenger, but deliberately does not run Vite's memory-intensive build.
+
+1. Confirm your cPanel plan supports Node.js 20 applications through Application Manager/Node.js Selector, Passenger, and outbound connections to MongoDB.
+2. Create a MongoDB database (for example, MongoDB Atlas) and allow connections from your hosting provider's outbound IP. Ask Aqua Hosting for that IP; do not leave the database open to all IPs.
+3. In cPanel, create/register the Node.js application with Node.js 20, production mode, application root `/home/jyobaqhy/repositories/starmax-new`, the domain and URL path you want to serve, and startup file `app.js`.
+4. Add these application environment variables in cPanel:
+   - `NODE_ENV=production`
+   - `MONGODB_URI` and `MONGODB_DB`
+   - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and a long random `ADMIN_JWT_SECRET`
+   - For contact and career email: `CONTACT_EMAIL_RECIPIENT`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM`. `CAREERS_EMAIL_TO` is optional.
+   - For admin image uploads: `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, and `IMAGEKIT_URL_ENDPOINT`.
+5. In your local checkout, run `npm ci` and `npm run build`.
+6. Upload the **contents** of the local `dist` directory (including `assets/` and `src/assets/`) into `/home/jyobaqhy/repositories/starmax-new/dist/` using cPanel File Manager. Do not upload `.env` or `node_modules`.
+7. Deploy the Git branch from cPanel. The checked-in `.cpanel.yml` installs production dependencies and restarts the Node.js app without running the build on the host.
+8. Visit the site's `/` and `/admin` routes, sign in with the configured admin credentials, and test a form and image upload.
+
+For later updates, rebuild locally, update the Git branch and pull it in cPanel, replace the contents of `dist/` with the newly built files, then restart the application. Since `dist/` is Git-ignored, the uploaded build remains on the server when source changes are pulled.
