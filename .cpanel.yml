@@ -7,3 +7,4 @@ deployment:
     - npm ci --omit=dev
     - mkdir -p tmp
     - touch tmp/restart.txt
+ 
