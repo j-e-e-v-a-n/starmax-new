@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "build": "vite build",
-    "start": "tsx server.ts",
-    "dev": "tsx server.ts"
+    "start": "node --disable-wasm-trap-handler --import tsx server.ts",
+    "dev": "node --disable-wasm-trap-handler --import tsx server.ts"
   },
   "dependencies": {
     "@google/genai": "^2.4.0",

@@ -1,0 +1,10 @@
+---
+deployment:
+  tasks:
+    - export APPPATH=/home/jyobaqhy/repositories/starmax-new
+    - export PATH=/home/jyobaqhy/nodevenv/repositories/starmax-new/20/bin:$PATH
+    - cd $APPPATH
+    - npm ci --include=dev
+    - npm run build
+    - mkdir -p tmp
+    - touch tmp/restart.txt
