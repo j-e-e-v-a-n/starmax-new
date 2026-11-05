@@ -125,7 +125,7 @@ Restart the development server after changing `.env`. Open `/admin` to sign in w
 
 ## 6. Deploying to Vercel
 
-The site is built as static Vite assets plus three serverless Express entry points: `api/[...path].ts` handles top-level API routes, and `api/admin/[...path].ts` and `api/content/[...path].ts` handle nested routes. This keeps the deployment within Vercel Hobby's 12-function limit while ensuring admin and content URLs reach Express.
+The site is built as static Vite assets plus explicit serverless Express entry points for the API route groups. Nested routes use Vercel's supported dynamic path segments rather than nested catch-all functions. The current API uses nine functions, within Vercel Hobby's 12-function limit.
 
 1. Use `npm run build` as the build command and `dist` as the output directory.
 2. Set `MONGODB_URI`, `MONGODB_DB`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_JWT_SECRET` in the Vercel project's environment variables for the deployments you use.
