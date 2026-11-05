@@ -60,8 +60,9 @@ export const AdminPage: React.FC = () => {
   };
 
   const loadItems = async (selectedTab: Tab) => {
-    if (selectedTab === 'admins') return;
-    const url = selectedTab === 'enquiries' ? '/api/admin/enquiries' : `/api/admin/content/${selectedTab}`;
+    const url = selectedTab === 'admins'
+      ? '/api/admin/admins'
+      : selectedTab === 'enquiries' ? '/api/admin/enquiries' : `/api/admin/content/${selectedTab}`;
     const result = await request(url);
     setItems(Array.isArray(result.data) ? result.data as RecordItem[] : []);
   };
@@ -72,7 +73,7 @@ export const AdminPage: React.FC = () => {
     let live = true;
     setNotice('');
     setSelected({});
-    if (tab === 'admins') { setItems([]); return; }
+    setItems([]);
     setBusy(true);
     loadItems(tab)
       .catch((error: unknown) => { if (live) { setNotice(error instanceof Error ? error.message : 'Could not load this section.'); setNoticeType('error'); } })
@@ -83,7 +84,10 @@ export const AdminPage: React.FC = () => {
   useEffect(() => {
     if (!token || tab !== 'enquiries') return;
     const refreshTimer = window.setInterval(() => {
-      loadItems('enquiries').catch(() => undefined);
+      loadItems('enquiries').catch((error: unknown) => {
+        setNotice(error instanceof Error ? error.message : 'Could not refresh requests.');
+        setNoticeType('error');
+      });
     }, 15000);
     return () => window.clearInterval(refreshTimer);
   }, [tab, token]);
@@ -145,8 +149,10 @@ export const AdminPage: React.FC = () => {
         reader.readAsDataURL(file);
       });
       const result = await request('/api/admin/upload', { method: 'POST', body: JSON.stringify({ file: dataUrl, fileName: file.name }) });
+      const uploadedImage = (result.data as { url?: unknown } | undefined)?.url;
+      if (typeof uploadedImage !== 'string' || !uploadedImage) throw new Error('Image upload completed without returning an image URL.');
       const field = tab === 'testimonials' ? 'avatar' : 'image';
-      setSelected((current) => ({ ...current, [field]: (result.data as { url: string }).url, ...(tab === 'clients' ? { logo: (result.data as { url: string }).url } : {}) }));
+      setSelected((current) => ({ ...current, [field]: uploadedImage, ...(tab === 'clients' ? { logo: uploadedImage } : {}) }));
       setNotice('Image uploaded. Save the item to publish it.'); setNoticeType('success');
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Image upload failed.'); setNoticeType('error'); }
     finally { setBusy(false); }
@@ -175,7 +181,8 @@ export const AdminPage: React.FC = () => {
       const link = document.createElement('a');
       link.href = fileUrl;
       link.download = 'candidate-resume';
-      document.body.appendChild(link); link.click(); link.remove(); URL.revokeObjectURL(fileUrl);
+      document.body.appendChild(link); link.click(); link.remove();
+      window.setTimeout(() => URL.revokeObjectURL(fileUrl), 1000);
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not download this CV.'); setNoticeType('error');
     }
@@ -188,7 +195,14 @@ export const AdminPage: React.FC = () => {
     setBusy(true); setNotice('');
     try {
       const result = await request('/api/admin/admins', { method: 'POST', body: JSON.stringify({ email: data.get('email'), password: data.get('password') }) });
-      setNotice(result.message || 'Administrator added.'); setNoticeType('success'); form.reset();
+      form.reset();
+      setNotice(result.message || 'Administrator added.'); setNoticeType('success');
+      try {
+        await loadItems('admins');
+      } catch {
+        setNotice('Administrator added, but the account list could not be refreshed.');
+        setNoticeType('error');
+      }
     } catch (error) { setNotice(error instanceof Error ? error.message : 'Could not add administrator.'); setNoticeType('error'); }
     finally { setBusy(false); }
   };
@@ -227,7 +241,7 @@ export const AdminPage: React.FC = () => {
 
         {notice && <p role={noticeType === 'error' ? 'alert' : 'status'} className={`mb-5 rounded-sm border p-3 text-sm ${noticeType === 'error' ? 'border-red-200 bg-red-50 text-red-800' : 'border-blue/15 bg-white text-navy'}`}>{notice}</p>}
 
-        {tab === 'admins' && <section className="max-w-xl border border-rule bg-white p-6 sm:p-8"><p className="label">Account access</p><h2 className="text-2xl">Add an administrator</h2><p className="mt-2 text-sm text-muted">Create a separate sign-in for a trusted teammate. Use a unique password with at least 12 characters.</p><form onSubmit={addAdmin} className="mt-6 space-y-4"><label className="block text-sm font-medium">Email address<input name="email" type="email" autoComplete="off" required placeholder="teammate@company.com" className={inputClass} /></label><label className="block text-sm font-medium">Temporary password<input name="password" type="password" autoComplete="new-password" minLength={12} required placeholder="At least 12 characters" className={inputClass} /></label><button disabled={busy} className="btn solid">{busy ? 'Adding…' : 'Add administrator'}</button></form><p className="mt-5 border-t border-rule pt-4 text-xs text-muted">Only the owner account can add administrators. Share the temporary password securely and have the new administrator change it after signing in.</p></section>}
+        {tab === 'admins' && <div className="grid items-start gap-6 xl:grid-cols-2"><section className="border border-rule bg-white p-6 sm:p-8"><p className="label">Account access</p><h2 className="text-2xl">Add an administrator</h2><p className="mt-2 text-sm text-muted">Create a separate sign-in for a trusted teammate. Use a unique password with at least 12 characters.</p><form onSubmit={addAdmin} className="mt-6 space-y-4"><label className="block text-sm font-medium">Email address<input name="email" type="email" autoComplete="off" required placeholder="teammate@company.com" className={inputClass} /></label><label className="block text-sm font-medium">Temporary password<input name="password" type="password" autoComplete="new-password" minLength={12} required placeholder="At least 12 characters" className={inputClass} /></label><button disabled={busy} className="btn solid">{busy ? 'Adding…' : 'Add administrator'}</button></form><p className="mt-5 border-t border-rule pt-4 text-xs text-muted">Only the owner account can add administrators. Share the temporary password securely and have the new administrator change it after signing in.</p></section><section className="border border-rule bg-white p-6 sm:p-8"><p className="label">Authorized accounts</p><h2 className="text-2xl">Administrators</h2>{busy && !items.length ? <p className="mt-4 text-sm text-muted">Loading administrators…</p> : items.length ? <ul className="mt-4 divide-y divide-rule">{items.map((admin) => <li key={String(admin.id)} className="flex flex-wrap items-center justify-between gap-2 py-3"><div><p className="font-medium">{String(admin.email || 'Unknown account')}</p><p className="text-xs capitalize text-muted">{String(admin.role || 'admin')}{admin.createdAt ? ` · Added ${new Date(String(admin.createdAt)).toLocaleDateString()}` : ''}</p></div></li>)}</ul> : <p className="mt-4 text-sm text-muted">No administrator accounts were returned.</p>}</section></div>}
 
         {tab === 'enquiries' && <section className="space-y-3"><div className="flex flex-wrap items-end justify-between gap-3"><div><h2 className="text-2xl">Enquiries, callbacks & careers</h2><p className="mt-1 text-sm text-muted">New requests refresh automatically every 15 seconds.</p></div><button type="button" disabled={busy} onClick={() => { setBusy(true); loadItems('enquiries').catch((error: unknown) => { setNotice(error instanceof Error ? error.message : 'Could not refresh requests.'); setNoticeType('error'); }).finally(() => setBusy(false)); }} className="btn outline">{busy ? 'Refreshing…' : 'Refresh now'}</button></div>{busy && !items.length ? <p className="border border-rule bg-white p-6 text-sm text-muted">Loading requests…</p> : items.map((item) => <article key={String(item.id)} className="border border-rule bg-white p-5"><div className="flex flex-wrap justify-between gap-2"><div><span className="text-[10px] font-semibold uppercase tracking-wider text-blue">{String(item.kind || 'Enquiry')}{item.emailStatus ? ` · email ${String(item.emailStatus).replace('_', ' ')}` : ''}</span><h2 className="font-semibold">{String(item.subject || item.fullName || 'Website request')}</h2></div><time className="text-xs text-muted">{item.createdAt ? new Date(String(item.createdAt)).toLocaleString() : ''}</time></div><p className="mt-2 text-sm">{String(item.fullName)} · {String(item.email || 'No email')}{item.phone ? ` · ${String(item.phone)}` : ''}</p>{Boolean(item.educationalQualification) && <p className="mt-1 text-sm text-muted">Qualification: {String(item.educationalQualification)}</p>}<p className="text-sm text-muted">{String(item.company || '')}{item.service ? ` · ${String(item.service)}` : ''}{item.preferredTime ? ` · Preferred: ${String(item.preferredTime)}` : ''}</p>{Boolean(item.message) && <p className="mt-3 whitespace-pre-wrap text-sm">{String(item.message)}</p>}{Boolean(item.resumeFileName) && <button type="button" onClick={() => void downloadResume(String(item.id))} className="btn outline mt-3">Download CV · {String(item.resumeFileName)}</button>}</article>)}{!busy && !items.length && <p className="border border-rule bg-white p-6 text-sm text-muted">No enquiries or callback requests yet.</p>}</section>}
 

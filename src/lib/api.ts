@@ -41,29 +41,19 @@ export async function submitContactRequest(data: ContactRequest): Promise<ApiRes
 }
 
 export async function submitServiceEnquiry(data: ServiceEnquiryRequest): Promise<ApiResponse> {
+  let response: Response;
   try {
-    const response = await fetch('/api/enquiry', {
+    response = await fetch('/api/enquiry', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data)
     });
-    if (response.ok) {
-      return await response.json();
-    }
   } catch {
-    // Fallback if backend server endpoint is offline
+    throw new Error('Unable to submit your service enquiry. Please try again shortly.');
   }
-
-  await new Promise((resolve) => setTimeout(resolve, 800));
-  if (!data.fullName || !data.phone) {
-    throw new Error('Please provide your name and phone number for enquiry consultation.');
-  }
-
-  return {
-    success: true,
-    message: `Enquiry for ${data.service} received. Our technical team in Kochi will review your project requirements and follow up.`,
-    timestamp: new Date().toISOString()
-  };
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.message || 'Unable to save your service enquiry. Please try again.');
+  return result;
 }
 
 export async function submitCareerApplication(data: CareerApplication, file?: File | null): Promise<ApiResponse> {

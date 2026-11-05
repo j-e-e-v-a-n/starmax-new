@@ -158,6 +158,24 @@ app.delete('/api/admin/content/:type/:id', requireAdmin, async (req: Request, re
   } catch (error) { return res.status(503).json({ success: false, message: error instanceof Error ? error.message : 'Delete failed.' }); }
 });
 
+app.get('/api/admin/admins', requireAdmin, async (req: Request, res: Response) => {
+  if ((req as Request & { admin?: jwt.JwtPayload }).admin?.role !== 'owner') {
+    return res.status(403).json({ success: false, message: 'Only the owner can view administrators.' });
+  }
+  try {
+    const admins = await (await db()).collection('admins')
+      .find({}, { projection: { email: 1, role: 1, createdAt: 1 } })
+      .sort({ createdAt: 1, _id: 1 })
+      .toArray();
+    return res.json({
+      success: true,
+      data: admins.map(({ _id, ...admin }) => ({ ...admin, id: String(_id) })),
+    });
+  } catch (error) {
+    return res.status(503).json({ success: false, message: error instanceof Error ? error.message : 'Administrators unavailable.' });
+  }
+});
+
 app.get('/api/admin/enquiries', requireAdmin, async (_req: Request, res: Response) => {
   try {
     const database = await db();
@@ -198,7 +216,9 @@ app.post('/api/admin/admins', requireAdmin, async (req: Request, res: Response) 
   if ((req as Request & { admin?: jwt.JwtPayload }).admin?.role !== 'owner') return res.status(403).json({ success: false, message: 'Only the owner can add administrators.' });
   const email = String(req.body.email || '').trim().toLowerCase();
   const password = String(req.body.password || '');
-  if (!email || password.length < 12) return res.status(400).json({ success: false, message: 'Provide an email and a password of at least 12 characters.' });
+  if (!/^\S+@\S+\.\S+$/.test(email) || password.length < 12) {
+    return res.status(400).json({ success: false, message: 'Provide a valid email and a password of at least 12 characters.' });
+  }
   try {
     await (await db()).collection('admins').insertOne({ email, passwordHash: await bcrypt.hash(password, 12), role: 'admin', createdAt: new Date() });
     return res.json({ success: true, message: 'Administrator added.' });
@@ -208,9 +228,16 @@ app.post('/api/admin/admins', requireAdmin, async (req: Request, res: Response) 
 app.post('/api/admin/upload', requireAdmin, async (req: Request, res: Response) => {
   if (!media) return res.status(503).json({ success: false, message: 'ImageKit is not configured.' });
   const { file, fileName } = req.body;
-  if (typeof file !== 'string' || !file.startsWith('data:image/')) return res.status(400).json({ success: false, message: 'Upload an image file.' });
+  const imageMatch = typeof file === 'string'
+    ? /^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/]+={0,2})$/.exec(file)
+    : null;
+  if (!imageMatch) return res.status(400).json({ success: false, message: 'Upload a JPG, PNG, or WebP image.' });
+  if (Buffer.from(imageMatch[2], 'base64').byteLength > 7 * 1024 * 1024) {
+    return res.status(413).json({ success: false, message: 'Images must be 7 MB or smaller.' });
+  }
   try {
-    const result = await media.upload({ file, fileName: String(fileName || `starmax-${Date.now()}.jpg`), folder: '/starmax' });
+    const safeFileName = path.basename(String(fileName || `starmax-${Date.now()}`)).replace(/[^\w.-]/g, '_');
+    const result = await media.upload({ file, fileName: safeFileName, folder: '/starmax' });
     return res.json({ success: true, data: { url: result.url, fileId: result.fileId } });
   } catch (error) { return res.status(502).json({ success: false, message: error instanceof Error ? error.message : 'Image upload failed.' }); }
 });
@@ -323,7 +350,7 @@ app.post('/api/contact', checkRateLimit, (req: Request, res: Response) => {
   });
 });
 
-app.post('/api/enquiry', checkRateLimit, (req: Request, res: Response) => {
+app.post('/api/enquiry', checkRateLimit, async (req: Request, res: Response) => {
   const { fullName, phone, email, company, service, location, message } = req.body;
 
   if (!fullName || !phone || !email || !service || !location) {
@@ -333,22 +360,28 @@ app.post('/api/enquiry', checkRateLimit, (req: Request, res: Response) => {
     });
   }
 
-  console.log('[SERVICE_ENQUIRY]', {
-    timestamp: new Date().toISOString(),
-    fullName,
-    phone,
-    email,
-    company,
-    service,
-    location,
-    message
-  });
-
-  return res.json({
-    success: true,
-    message: `Enquiry for ${service} at ${location} has been registered. Our technical team will follow up promptly.`,
-    timestamp: new Date().toISOString()
-  });
+  try {
+    const createdAt = new Date();
+    await (await db()).collection('enquiries').insertOne({
+      fullName: String(fullName).trim(),
+      phone: String(phone).trim(),
+      email: String(email).trim(),
+      company: company ? String(company).trim() : '',
+      service: String(service).trim(),
+      location: String(location).trim(),
+      message: message ? String(message).trim() : '',
+      status: 'new',
+      createdAt,
+    });
+    return res.json({
+      success: true,
+      message: `Enquiry for ${service} at ${location} has been registered. Our technical team will follow up promptly.`,
+      timestamp: createdAt.toISOString(),
+    });
+  } catch (error) {
+    console.error('[SERVICE_ENQUIRY_SAVE_FAILED]', error instanceof Error ? error.message : 'Unknown database error');
+    return res.status(503).json({ success: false, message: 'We could not save your enquiry. Please try again shortly.' });
+  }
 });
 
 app.post('/api/careers', checkRateLimit, parseCareerResume, async (req: Request, res: Response) => {

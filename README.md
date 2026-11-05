@@ -56,7 +56,7 @@ Every required route has its own dedicated page component, metadata, and structu
   - Accent Amber: `#F5A623`
 - **Icons:** `lucide-react`
 - **Routing:** History API Client Router with deep linking, breadcrumbs, and scroll restoration
-- **Backend:** Express full-stack API server (`server.ts`) supporting `/api/callback`, `/api/contact`, `/api/enquiry`, and `/api/careers`
+- **Backend:** Express API server (`server.ts`) for public forms, content, and admin management
 
 ---
 
@@ -123,7 +123,19 @@ IMAGEKIT_URL_ENDPOINT="https://ik.imagekit.io/your_imagekit_id"
 
 Restart the development server after changing `.env`. Open `/admin` to sign in with `ADMIN_EMAIL` and `ADMIN_PASSWORD`. On first login, the owner account and starter website content are initialized in MongoDB. Add other staff accounts from the **Admins** tab. Configure the same values in your production host's environment settings before deploying; local `.env` values do not transfer to your production host.
 
-## 6. Deploying the full application to cPanel
+## 6. Deploying to Vercel
+
+The site is built as static Vite assets plus three serverless Express entry points: `api/[...path].ts` handles top-level API routes, and `api/admin/[...path].ts` and `api/content/[...path].ts` handle nested routes. This keeps the deployment within Vercel Hobby's 12-function limit while ensuring admin and content URLs reach Express.
+
+1. Use `npm run build` as the build command and `dist` as the output directory.
+2. Set `MONGODB_URI`, `MONGODB_DB`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_JWT_SECRET` in the Vercel project's environment variables for the deployments you use.
+3. For image uploads, set `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, and `IMAGEKIT_URL_ENDPOINT`. The private key must only be configured as a server environment variable.
+4. To deliver contact/career email, also set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, and the appropriate contact/careers recipient variables.
+5. Redeploy after adding or changing environment variables. Test `/admin` and the API routes on the resulting deployment.
+
+The admin API supports login, clients/gallery/testimonials create/read/update/delete, enquiry inbox and career resume downloads, administrator listing/creation, and ImageKit uploads. Service enquiries are saved to the same admin inbox as other submissions.
+
+## 7. Deploying the full application to cPanel
 
 The Express server serves both the built frontend and the `/api/*` backend. cPanel's Passenger startup file is `app.js`; set the application root to the repository root and the startup file to `app.js`. The Git deployment hook installs production dependencies and restarts Passenger, but deliberately does not run Vite's memory-intensive build.
 
