@@ -9,9 +9,9 @@ import jwt from 'jsonwebtoken';
 import ImageKit from 'imagekit';
 import nodemailer from 'nodemailer';
 import multer from 'multer';
-import { CLIENTS } from './src/data/clients';
-import { GALLERY_ITEMS } from './src/data/gallery';
-import { TESTIMONIALS } from './src/data/testimonials';
+import { CLIENTS } from './src/data/clients.js';
+import { GALLERY_ITEMS } from './src/data/gallery.js';
+import { TESTIMONIALS } from './src/data/testimonials.js';
 
 dotenv.config();
 
