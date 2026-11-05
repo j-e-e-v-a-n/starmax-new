@@ -3,7 +3,7 @@ import type { Request, Response, NextFunction } from 'express';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import dotenv from 'dotenv';
-import { MongoClient, ObjectId } from 'mongodb';
+import { MongoClient, ObjectId, type Document } from 'mongodb';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import ImageKit from 'imagekit';
@@ -34,6 +34,14 @@ const db = async () => {
   return mongoClient.db(process.env.MONGODB_DB || 'starmax');
 };
 const collections = ['clients', 'gallery', 'testimonials'] as const;
+function filterGpsGalleryItems(items: Document[]): Document[] {
+  return items.filter((item) => {
+    const galleryText = [item.title, item.caption, item.image]
+      .filter((value): value is string => typeof value === 'string')
+      .join(' ');
+    return item.id !== 'g-6' && !/\b(gps|fleet|telematics|vehicle\s+tracking)\b/i.test(galleryText);
+  });
+}
 const tokenSecret = process.env.ADMIN_JWT_SECRET || '';
 const media = process.env.IMAGEKIT_PUBLIC_KEY && process.env.IMAGEKIT_PRIVATE_KEY && process.env.IMAGEKIT_URL_ENDPOINT
   ? new ImageKit({ publicKey: process.env.IMAGEKIT_PUBLIC_KEY, privateKey: process.env.IMAGEKIT_PRIVATE_KEY, urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT })
@@ -103,7 +111,17 @@ app.get('/api/content/:type', async (req: Request, res: Response) => {
   if (!collections.includes(req.params.type as typeof collections[number])) return res.status(404).json({ success: false, message: 'Unknown content type.' });
   try {
     const items = await (await db()).collection(req.params.type).find({ active: { $ne: false } }).sort({ order: 1, _id: 1 }).toArray();
-    return res.json({ success: true, data: items.map(({ _id, ...item }) => ({ ...item, id: String(item.id || _id) })) });
+    const visibleItems = req.params.type === 'gallery' ? filterGpsGalleryItems(items) : items;
+    return res.json({
+      success: true,
+      data: visibleItems.map(({ _id, ...item }) => ({
+        ...item,
+        ...(req.params.type === 'gallery' && item.category === 'tracking'
+          ? { category: 'automation', categoryLabel: 'Home Automation' }
+          : {}),
+        id: String(item.id || _id),
+      })),
+    });
   } catch (error) { return res.status(503).json({ success: false, message: error instanceof Error ? error.message : 'Content unavailable.' }); }
 });
 
@@ -111,7 +129,15 @@ app.get('/api/admin/content/:type', requireAdmin, async (req: Request, res: Resp
   if (!collections.includes(req.params.type as typeof collections[number])) return res.status(404).json({ success: false, message: 'Unknown content type.' });
   try {
     const items = await (await db()).collection(req.params.type).find().sort({ order: 1, _id: 1 }).toArray();
-    return res.json({ success: true, data: items.map(({ _id, ...item }) => ({ ...item, id: String(item.id || _id) })) });
+    const visibleItems = req.params.type === 'gallery' ? filterGpsGalleryItems(items) : items;
+    return res.json({
+      success: true,
+      data: visibleItems.map(({ _id, ...item }) => ({
+        ...item,
+        ...(req.params.type === 'gallery' && item.category === 'tracking' ? { category: 'automation', categoryLabel: 'Home Automation' } : {}),
+        id: String(item.id || _id),
+      })),
+    });
   } catch (error) { return res.status(503).json({ success: false, message: error instanceof Error ? error.message : 'Content unavailable.' }); }
 });
 
@@ -426,7 +452,7 @@ async function startServer() {
 
   const portNumber = Number(PORT) || 3000;
   app.listen(portNumber, '0.0.0.0', () => {
-    console.log(`Server running at http://0.0.0.0:${portNumber}`);
+    console.log(`Server running at http://localhost:${portNumber}`);
   });
 }
 

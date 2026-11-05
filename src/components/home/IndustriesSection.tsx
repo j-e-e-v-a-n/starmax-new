@@ -28,7 +28,7 @@ const ENVIRONMENTS = [
   },
   {
     title: 'Logistics & warehouses',
-    desc: 'Perimeter and loading-bay coverage, with optional fleet GPS tracking.',
+    desc: 'Perimeter and loading-bay coverage with controlled access.',
     icon: Warehouse,
   },
   {

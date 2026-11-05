@@ -2,7 +2,7 @@ export const COMPANY_INFO = {
   name: "Starmax Systems",
   tagline: "Security Systems & Automation",
   eyebrow: "SECURITY SYSTEMS & AUTOMATION",
-  industry: "Security Systems, Surveillance, Access Control, Tracking and Automation",
+  industry: "Security Systems, Surveillance, Access Control, and Home Automation",
   registeredOffice: {
     doorNo: "55/1668",
     building: "Green Nest Business Center",

@@ -14,7 +14,7 @@ const categories = [
   { value: 'gates', label: 'Automatic Gates' },
   { value: 'access', label: 'Access Control' },
   { value: 'equipment', label: 'Security Equipment' },
-  { value: 'tracking', label: 'Tracking & Automation' },
+  { value: 'automation', label: 'Home Automation' },
 ];
 const fields: Record<ContentTab, string[]> = {
   clients: ['name', 'industry', 'image', 'order', 'active'],

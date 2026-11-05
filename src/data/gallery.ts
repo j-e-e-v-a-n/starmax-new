@@ -42,14 +42,6 @@ export const GALLERY_ITEMS: GalleryItem[] = [
     caption: 'Exterior video door phone unit with color LCD intercom and remote strike release.'
   },
   {
-    id: 'g-6',
-    title: 'Commercial GPS Fleet Tracking Unit',
-    category: 'tracking',
-    categoryLabel: 'Tracking and Automation',
-    image: '/src/assets/images/gps_vehicle_tracking_1791638668947.jpg',
-    caption: 'GPS tracking hardware module with external telemetry antennae and live dashboard interface.'
-  },
-  {
     id: 'g-7',
     title: 'Commercial Facility Surveillance',
     category: 'cctv',
@@ -76,8 +68,8 @@ export const GALLERY_ITEMS: GalleryItem[] = [
   {
     id: 'g-10',
     title: 'Smart Home Automation Touch Panel',
-    category: 'tracking',
-    categoryLabel: 'Tracking and Automation',
+    category: 'automation',
+    categoryLabel: 'Home Automation',
     image: '/src/assets/images/home_automation_smart_1791638791810.jpg',
     caption: 'Integrated residential touchscreen controller for lighting, security, and climate systems.'
   }

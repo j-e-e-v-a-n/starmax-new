@@ -36,7 +36,7 @@ export interface TestimonialItem {
 export interface GalleryItem {
   id: string;
   title: string;
-  category: 'cctv' | 'gates' | 'access' | 'tracking' | 'equipment' | 'booster';
+  category: 'cctv' | 'gates' | 'access' | 'automation' | 'equipment' | 'booster';
   categoryLabel: string;
   image: string;
   caption: string;

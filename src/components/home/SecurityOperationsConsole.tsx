@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { Camera, Navigation, Shield, Fingerprint, Activity, Radio, Eye, Lock, Sliders, CheckCircle2 } from 'lucide-react';
+import { Activity, Camera, CheckCircle2, Eye, Sliders } from 'lucide-react';
 import { COMPANY_INFO } from '../../data/company';
 
-type ChannelKey = 'cctv' | 'gps' | 'gate' | 'biometric';
+type ChannelKey = 'cctv' | 'gate' | 'biometric';
 
 interface ChannelData {
   id: ChannelKey;
@@ -10,7 +10,7 @@ interface ChannelData {
   title: string;
   hardware: string;
   image: string;
-  status: 'ONLINE' | 'ARMED' | 'TRACKING';
+  status: 'ONLINE' | 'ARMED';
   metrics: {
     label: string;
     value: string;
@@ -37,25 +37,8 @@ const CHANNELS: ChannelData[] = [
     notes: 'Configured for Kerala coastal salt-fog & heavy monsoon downpours.'
   },
   {
-    id: 'gps',
-    channelTag: 'CH-02',
-    title: 'AIS-140 Fleet GPS Telematics',
-    hardware: 'Govt. MVD Kerala Approved AIS-140 Tracker',
-    image: '/src/assets/images/gps_vehicle_tracking_1791638668947.jpg',
-    status: 'TRACKING',
-    metrics: [
-      { label: 'VEHICLE ID', value: 'KL-07-CC-4421' },
-      { label: 'CURRENT ROUTE', value: 'Vytilla Hub → Kakkanad' },
-      { label: 'TELEMETRY SPEED', value: '38 km/h' },
-      { label: 'SATELLITES', value: '14 GNSS Locked' },
-      { label: 'PANIC / SOS', value: 'Ready & Monitored' },
-      { label: 'IGNITION STATE', value: 'Active Engine ON' }
-    ],
-    notes: 'Real-time telemetry with geo-fencing and automated Kerala MVD reporting.'
-  },
-  {
     id: 'gate',
-    channelTag: 'CH-03',
+    channelTag: 'CH-02',
     title: 'Heavy-Duty Motorized Gate Relay',
     hardware: 'Roger Technology (Italy) Brushless 24V',
     image: '/src/assets/images/automatic_sliding_gate_1791638440556.jpg',
@@ -72,7 +55,7 @@ const CHANNELS: ChannelData[] = [
   },
   {
     id: 'biometric',
-    channelTag: 'CH-04',
+    channelTag: 'CH-03',
     title: 'Biometric Access & Time-Attendance',
     hardware: 'eSSL Multi-Biometric Face & Fingerprint Terminal',
     image: '/src/assets/images/access_control_biometric_1791638461654.jpg',
@@ -124,7 +107,7 @@ export const SecurityOperationsConsole: React.FC = () => {
       </div>
 
       {/* Channel Switcher Tabs (Asymmetric Engineering Selector) */}
-      <div className="grid grid-cols-2 sm:grid-cols-4 bg-[#F1F5F9] border-b border-[#CBD5E1] text-xs">
+      <div className="grid grid-cols-2 sm:grid-cols-3 bg-[#F1F5F9] border-b border-[#CBD5E1] text-xs">
         {CHANNELS.map((ch) => {
           const isActive = ch.id === activeTab;
           return (
@@ -146,7 +129,6 @@ export const SecurityOperationsConsole: React.FC = () => {
               </div>
               <span className="truncate font-sans font-semibold text-xs text-slate-800">
                 {ch.id === 'cctv' && '4K IP CCTV'}
-                {ch.id === 'gps' && 'Fleet GPS (AIS-140)'}
                 {ch.id === 'gate' && 'Roger Auto Gate'}
                 {ch.id === 'biometric' && 'Biometric Access'}
               </span>
@@ -181,7 +163,7 @@ export const SecurityOperationsConsole: React.FC = () => {
         <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
           <div className="bg-[#0B2545]/95 text-white text-[11px] font-mono px-2.5 py-1 rounded border border-white/20 flex items-center gap-2">
             <span className="w-2 h-2 rounded-full bg-red-500" />
-            <span className="font-bold tracking-wider">LIVE TELEMETRY</span>
+            <span className="font-bold tracking-wider">LIVE SYSTEM STATUS</span>
             <span className="text-slate-300">|</span>
             <span>{activeChannel.channelTag}</span>
           </div>
@@ -275,7 +257,7 @@ export const SecurityOperationsConsole: React.FC = () => {
                 className="px-3 py-1.5 rounded text-xs font-mono font-semibold bg-[#0B2545] text-white hover:bg-[#003865] transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
               >
                 <Activity className="w-3.5 h-3.5 text-emerald-400" />
-                <span>Ping Hardware Telemetry</span>
+                <span>Ping Device Status</span>
               </button>
             )}
           </div>

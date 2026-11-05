@@ -25,7 +25,6 @@ export const ContactForm: React.FC = () => {
   const serviceOptions = [
     { value: 'General Corporate Enquiry', label: 'General Corporate Enquiry' },
     { value: 'IP CCTV Systems', label: 'IP CCTV Systems' },
-    { value: 'GPS Tracking Systems', label: 'GPS Tracking Systems' },
     { value: 'Access Control Systems', label: 'Access Control Systems' },
     { value: 'Video Door Phone Systems', label: 'Video Door Phone Systems' },
     { value: 'Automatic Gate Systems', label: 'Automatic Gate Systems' },

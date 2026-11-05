@@ -23,7 +23,7 @@ export const GalleryPage: React.FC = () => {
     { id: 'gates', label: 'Automatic Gates' },
     { id: 'access', label: 'Access Control' },
     { id: 'equipment', label: 'Security Equipment' },
-    { id: 'tracking', label: 'Tracking & Automation' }
+    { id: 'automation', label: 'Home Automation' }
   ];
 
   const filteredItems = selectedCategory === 'all'

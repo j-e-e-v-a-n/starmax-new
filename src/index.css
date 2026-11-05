@@ -1574,7 +1574,6 @@ body { background: #fff; }
 .hero[data-animate-art="true"] .surveillance-cone { opacity: 0; transform-box: fill-box; transform-origin: top center; animation: surveillance-arrive .8s ease-out 3.05s both, surveillance-scan 4s ease-in-out 4s infinite alternate; }
 .hero[data-animate-art="true"] .surveillance-cone:nth-child(2) { animation-delay: 3.22s, 4.2s; }
 .hero[data-animate-art="true"] .surveillance-cone:nth-child(3) { animation-delay: 3.38s, 4.5s; }
-.hero[data-animate-art="true"] .hero-brand { opacity: 0; transform: translateY(7px); animation: device-arrive .6s ease-out 2.55s both; }
 @keyframes wifi-pop-in { from { opacity: 0; transform: scale(.35); } 70% { opacity: 1; transform: scale(1.14); } to { opacity: 1; transform: scale(1); } }
 @keyframes device-arrive { to { opacity: 1; transform: translateY(0); } }
 @keyframes surveillance-arrive { from { opacity: 0; transform: scaleY(.5); } to { opacity: .72; transform: scaleY(1); } }
@@ -1612,6 +1611,5 @@ body { background: #fff; }
 @media (prefers-reduced-motion: reduce) {
   .hero[data-animate-art="true"] .wifi-pop,
   .hero[data-animate-art="true"] .hero-devices,
-  .hero[data-animate-art="true"] .surveillance-cone,
-  .hero[data-animate-art="true"] .hero-brand { animation: none; opacity: 1; transform: none; }
+  .hero[data-animate-art="true"] .surveillance-cone { animation: none; opacity: 1; transform: none; }
 }

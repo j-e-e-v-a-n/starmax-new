@@ -178,7 +178,7 @@ export const ServiceEnquiryForm: React.FC<ServiceEnquiryFormProps> = ({ serviceT
         <Textarea
           label="Project Requirements / Notes"
           rows={3}
-          placeholder="Provide preliminary details (number of cameras, gate length, vehicle fleet size, etc.)..."
+          placeholder="Provide preliminary details (number of cameras, gate length, site layout, etc.)..."
           value={formData.message}
           onChange={(e) => setFormData({ ...formData, message: e.target.value })}
         />

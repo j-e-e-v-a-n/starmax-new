@@ -36,41 +36,6 @@ export const SERVICES: ServiceItem[] = [
     ctaText: 'Enquire About CCTV Systems'
   },
   {
-    id: 'gps-tracking',
-    slug: 'gps-tracking-systems',
-    title: 'GPS Tracking Systems',
-    shortDescription: 'GPS vehicle tracking helps users monitor the location and movement of vehicles for individuals and fleets.',
-    fullDescription: 'GPS vehicle tracking helps users monitor the location and movement of vehicles. Starmax Systems provides tracking solutions for individual vehicles and fleet operations, with capabilities depending on the selected tracking unit and configuration.',
-    image: '/src/assets/images/gps_vehicle_tracking_1791638668947.jpg',
-    whatIsIt: 'GPS tracking systems combine satellite positioning with cellular telemetry hardware installed inside commercial vehicles, passenger cars, or logistics trucks. Devices relay coordinates and operating parameters to a software platform for visibility.',
-    applications: [
-      'Commercial logistics, freight transportation, and delivery vans',
-      'Corporate staff transport and cab fleet operations',
-      'Construction machinery, equipment carriers, and supply trucks',
-      'Educational institution school buses and van routes',
-      'Individual personal vehicles and rental car fleets',
-      'Field service vehicle dispatch and route verification'
-    ],
-    capabilities: [
-      'Vehicle location monitoring and historical trip replays',
-      'Fleet visibility across designated geographic boundaries',
-      'Web-based portal or mobile tracking applications where supported',
-      'Speed monitoring and operational time logs where supported by device',
-      'Potential integration with RFID readers, microphones, and fuel sensors depending on equipment compatibility',
-      'Configurable alerts through SMS or email where supported by selected configuration',
-      'Operational summary reports to help review fleet movements and transit times'
-    ],
-    benefits: [
-      'Real-time geographical visibility across active vehicles',
-      'Trip logs to verify deliveries and vehicle utilization',
-      'Notification triggers for predefined operational events',
-      'Hardware options tailored for single vehicles or commercial fleets',
-      'Installation support and initial portal onboarding'
-    ],
-    relatedServices: ['ip-cctv-systems', 'intercom-epabx', 'access-control-systems'],
-    ctaText: 'Enquire About GPS Tracking'
-  },
-  {
     id: 'access-control',
     slug: 'access-control-systems',
     title: 'Access Control Systems',

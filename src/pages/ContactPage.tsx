@@ -105,18 +105,16 @@ export const ContactPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setActiveMobileTab('form')}
-            className={`flex-1 py-2 px-4 rounded-[2px] text-xs font-semibold transition-colors text-center cursor-pointer border ${
-              activeMobileTab === 'form' ? 'bg-blue text-white border-blue' : 'bg-white text-muted border-rule'
-            }`}
+            className={`flex-1 py-2 px-4 rounded-[2px] text-xs font-semibold transition-colors text-center cursor-pointer border ${activeMobileTab === 'form' ? 'bg-blue text-white border-blue' : 'bg-white text-muted border-rule'
+              }`}
           >
             Direct Message Form
           </button>
           <button
             type="button"
             onClick={() => setActiveMobileTab('details')}
-            className={`flex-1 py-2 px-4 rounded-[2px] text-xs font-semibold transition-colors text-center cursor-pointer border ${
-              activeMobileTab === 'details' ? 'bg-blue text-white border-blue' : 'bg-white text-muted border-rule'
-            }`}
+            className={`flex-1 py-2 px-4 rounded-[2px] text-xs font-semibold transition-colors text-center cursor-pointer border ${activeMobileTab === 'details' ? 'bg-blue text-white border-blue' : 'bg-white text-muted border-rule'
+              }`}
           >
             Office Info &amp; Numbers
           </button>
@@ -192,18 +190,6 @@ export const ContactPage: React.FC = () => {
                       <div className="text-xs text-muted">Primary Technical Line</div>
                       <a href={`tel:${COMPANY_INFO.contacts.primaryPhoneRaw}`} className="text-base font-semibold text-navy hover:text-blue transition-colors block">
                         {COMPANY_INFO.contacts.primaryPhone}
-                      </a>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3 pt-4 border-t border-rule">
-                    <span className="w-8 h-8 rounded-[2px] bg-mist text-blue flex items-center justify-center shrink-0">
-                      <Phone className="w-4 h-4" />
-                    </span>
-                    <div className="min-w-0">
-                      <div className="text-xs text-muted">Secondary Office Line</div>
-                      <a href={`tel:${COMPANY_INFO.contacts.secondaryPhoneRaw}`} className="text-sm font-semibold text-navy hover:text-blue transition-colors block">
-                        {COMPANY_INFO.contacts.secondaryPhone}
                       </a>
                     </div>
                   </div>

@@ -151,7 +151,7 @@ export const CallbackForm: React.FC<CallbackFormProps> = ({ onSuccess, defaultSe
       <Textarea
         label="Message / Specific Requirements (Optional)"
         rows={3}
-        placeholder="Tell us about your premises, gate type, camera requirements, or vehicle count..."
+        placeholder="Tell us about your premises, gate type, or camera requirements..."
         value={formData.message}
         onChange={(e) => setFormData({ ...formData, message: e.target.value })}
       />

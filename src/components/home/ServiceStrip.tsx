@@ -8,8 +8,8 @@ const PILLARS = [
     icon: Camera,
   },
   {
-    title: 'Access Control & Tracking',
-    desc: 'GPS tracking, biometric entry and attendance.',
+    title: 'Access Control & Attendance',
+    desc: 'Biometric entry and attendance management.',
     icon: Radar,
   },
   {

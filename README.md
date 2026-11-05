@@ -1,16 +1,15 @@
 # Starmax Systems — Corporate Website
 
-A production-ready corporate website for **Starmax Systems**, a security systems, surveillance, access control, vehicle tracking, and automation solutions provider based in Kadavanthra, Kochi, Kerala, India.
+A production-ready corporate website for **Starmax Systems**, a security systems, surveillance, access control, home automation, and network solutions provider based in Kadavanthra, Kochi, Kerala, India.
 
 ---
 
 ## 1. Company Overview
 
 - **Company Name:** Starmax Systems
-- **Industry:** Security Systems, Surveillance, Access Control, Tracking and Automation
+- **Industry:** Security Systems, Surveillance, Access Control, Home Automation and Networking
 - **Registered Office:** 55/1668, Green Nest Business Center, Girinagar, 9th Cross Road, Behind Mini Community Hall, Kadavanthra, Kochi – 682020, Kerala, India
 - **Primary Phone:** +91 99954 33366
-- **Secondary Phone:** +91 94465 04401
 - **General Email:** info@starmaxsystems.com
 - **Business Email:** eldho@starmaxsystems.com
 - **GSTIN:** 32CJGPM2017L1ZD
@@ -26,11 +25,10 @@ Every required route has its own dedicated page component, metadata, and structu
 
 | Route | Page | Description |
 |---|---|---|
-| `/` | **Home** | Complete corporate landing page featuring Hero, Trust Intro, 8-Service Grid, Why Starmax, Application Environments, Featured Solutions, Client Wordmarks, Testimonials, Gallery Preview, Callback Form, and Final CTA. |
+| `/` | **Home** | Complete corporate landing page featuring Hero, Trust Intro, 7-Service Grid, Why Starmax, Application Environments, Featured Solutions, Client Wordmarks, Testimonials, Gallery Preview, Callback Form, and Final CTA. |
 | `/about` | **About Us** | Company approach, technology evolution, services links, installation & maintenance, and service points across Kerala. |
-| `/services` | **Services Overview** | Comprehensive overview grid of all 8 security & automation disciplines with consultation request form. |
+| `/services` | **Services Overview** | Comprehensive overview grid of all 7 security & automation disciplines with consultation request form. |
 | `/services/ip-cctv-systems` | **IP CCTV Systems** | Commercial & residential surveillance, NVR setups, IR night vision, coverage planning, and dedicated enquiry form. |
-| `/services/gps-tracking-systems` | **GPS Tracking Systems** | Fleet visibility, route tracking, optional sensor telemetry, and fleet enquiry form. |
 | `/services/access-control-systems` | **Access Control Systems** | Biometric fingerprint readers, RFID cards, EM locks, audit trails, and security enquiry form. |
 | `/services/video-door-phone` | **Video Door Phone** | Indoor color monitors, exterior doorbell cameras, remote door release, and villa/apartment enquiry form. |
 | `/services/automatic-gates` | **Automatic Gates** | Motorized sliding gates, swing gates, boom barriers, safety photo-beams, and gate automation enquiry form. |

@@ -16,11 +16,6 @@ const SERVICE_SEO: Record<string, { title: string; description: string }> = {
     description:
       'IP CCTV installation in Kochi by Starmax Systems — HD and 4K surveillance cameras, NVR setup, remote mobile viewing and AMC support for homes, shops and industries across Kerala.',
   },
-  'gps-tracking-systems': {
-    title: 'GPS Tracking Systems',
-    description:
-      'GPS vehicle tracking systems from Starmax Systems Kochi — real-time fleet tracking, geofencing, trip history and anti-theft alerts for businesses operating across Kerala.',
-  },
   'access-control-systems': {
     title: 'Access Control Systems',
     description:
@@ -57,7 +52,7 @@ const ROUTE_SEO: Record<string, RouteSeo> = {
   '/': {
     title: 'Starmax Systems | Security & Network Integration in Kochi, Kerala',
     description:
-      'Starmax Systems, Kochi — CCTV surveillance, access control, automatic gates, video door phones, GPS tracking and network installation for homes, businesses and industries across Kerala since 2003. Call +91 99954 33366.',
+      'Starmax Systems, Kochi — CCTV surveillance, access control, automatic gates, video door phones and network installation for homes, businesses and industries across Kerala since 2003. Call +91 99954 33366.',
   },
   '/about': {
     title: 'About Starmax Systems | Security Solutions in Kerala',
@@ -67,7 +62,7 @@ const ROUTE_SEO: Record<string, RouteSeo> = {
   '/services': {
     title: 'Security Systems & Automation Services | Starmax Systems',
     description:
-      'Starmax Systems services in Kochi — IP CCTV, GPS tracking, access control, video door phones, automatic gates, intercom EPABX, time attendance and home automation. Free site survey.',
+      'Starmax Systems services in Kochi — IP CCTV, access control, video door phones, automatic gates, intercom EPABX, time attendance and home automation. Free site survey.',
   },
   '/gallery': {
     title: 'Security Systems Gallery | Starmax Systems Kochi',
