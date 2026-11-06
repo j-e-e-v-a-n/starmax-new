@@ -761,8 +761,9 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
 .facts dt { font-family: var(--font-serif); font-size: 25px; letter-spacing: -0.02em; line-height: 1.15; color: var(--color-navy); }
 .facts dd { margin-top: 6px; font-size: 15px; line-height: 1.5; color: var(--color-muted); }
 /* --- Services grid --- */
-.svc-grid { display: grid; grid-template-columns: repeat(4, 1fr); column-gap: 28px; border-top: 1px solid var(--color-navy); }
+.svc-grid { display: flex; flex-wrap: wrap; justify-content: center; column-gap: 28px; border-top: 1px solid var(--color-navy); }
 .svc {
+  flex: 0 1 calc((100% - 84px) / 4);
   padding: 28px 0 36px;
   border-bottom: 1px solid var(--color-rule);
   display: flex;
@@ -770,6 +771,7 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
   gap: 16px;
 }
 .svc:not(:nth-child(4n)) { border-right: 1px solid var(--color-rule); }
+.svc:last-child { border-right: 0; }
 .svc-media {
   aspect-ratio: 4 / 3;
   background: var(--color-mist);
@@ -1233,9 +1235,11 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
     gap: 4px;
   }
   .nav.open a { padding: 12px 0; border-bottom: 1px solid var(--color-rule); }
-.svc-grid { grid-template-columns: repeat(2, 1fr); column-gap: 28px; }
+.svc { flex-basis: calc((100% - 28px) / 2); }
+.svc-grid { column-gap: 28px; }
 .svc:not(:nth-child(4n)) { border-right: 0; }
 .svc:nth-child(odd) { border-right: 1px solid var(--color-rule); }
+.svc:last-child { border-right: 0; }
   .adv-grid { grid-template-columns: 1fr 1fr; }
   .sector-grid { grid-template-columns: repeat(2, 1fr); }
   .gal { grid-template-columns: repeat(2, 1fr); }
@@ -1258,7 +1262,8 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
   .starmax-logo { height: 38px; }
   .footer .starmax-logo { height: 34px; }
   /* Every card grid stays 2 per row on mobile */
-  .svc-grid,
+  .svc-grid { column-gap: 16px; }
+  .svc { flex-basis: calc((100% - 16px) / 2); }
   .adv-grid,
   .gal,
   .sector-grid,
@@ -1267,7 +1272,6 @@ p.sub, .sub { color: var(--color-muted); max-width: 52ch; }
   .foot-grid,
   .checks { grid-template-columns: repeat(2, 1fr); }
   /* Tighter spacing so two columns fit comfortably */
-  .svc-grid { column-gap: 16px; }
   .svc { padding: 22px 0 26px; min-height: 0; }
   .adv-grid { gap: 14px; }
   .adv-card { padding: 22px 18px 24px; }
