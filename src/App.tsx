@@ -20,7 +20,6 @@ import { ServicesOverviewPage } from './pages/ServicesOverviewPage';
 import { ServiceDetailPage } from './pages/ServiceDetailPage';
 import { GalleryPage } from './pages/GalleryPage';
 import { ClientsPage } from './pages/ClientsPage';
-import { CareersPage } from './pages/CareersPage';
 import { TestimonialsPage } from './pages/TestimonialsPage';
 import { ContactPage } from './pages/ContactPage';
 import { PrivacyPolicyPage } from './pages/PrivacyPolicyPage';
@@ -60,9 +59,6 @@ const AppContent: React.FC = () => {
     }
     if (normalized === '/clients') {
       return <ClientsPage />;
-    }
-    if (normalized === '/careers') {
-      return <CareersPage />;
     }
     if (normalized === '/testimonials') {
       return <TestimonialsPage />;

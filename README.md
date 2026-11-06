@@ -37,10 +37,9 @@ Every required route has its own dedicated page component, metadata, and structu
 | `/services/home-automation` | **Home Automation** | Smart touchscreen panels, automated lighting scenes, security coordination, and residential enquiry form. |
 | `/gallery` | **Gallery** | Categorized equipment gallery (CCTV, Signal Boosters, Gates, Access, etc.) with accessible keyboard-navigable Lightbox (ESC, Next, Prev). |
 | `/clients` | **Top Clients** | Typography-restrained client wordmark grid featuring all 21 supplied client references. |
-| `/careers` | **Careers** | Candidate application form with file validation for CV uploads (PDF/DOC up to 5MB) and structured fields. |
 | `/testimonials` | **Testimonials** | Authentic client feedback regarding automatic gates and security equipment support. |
 | `/contact` | **Contact Us** | Interactive contact message form, full address with copy function, direct calling links, and office details. |
-| `/privacy-policy` | **Privacy Policy** | Pragmatic data handling notice for enquiries and career submissions. |
+| `/privacy-policy` | **Privacy Policy** | Pragmatic data handling notice for website enquiries. |
 | `/*` | **404 Page** | Branded not-found page with clear pathways back to Home or Services. |
 
 ---
@@ -96,18 +95,6 @@ npm run lint
 Create a `.env` file based on `.env.example`:
 
 ```env
-# Contact form recipient
-CONTACT_EMAIL_RECIPIENT="info@starmaxsystems.com"
-BUSINESS_EMAIL_RECIPIENT="eldho@starmaxsystems.com"
-
-# SMTP mail settings (Google Workspace example; use an app password)
-SMTP_HOST="smtp.gmail.com"
-SMTP_PORT="587"
-SMTP_SECURE="false"
-SMTP_USER="username"
-SMTP_PASSWORD="google-workspace-app-password"
-SMTP_FROM="mailer@starmaxsystems.com"
-
 # Database, first admin login, and session signing
 MONGODB_URI="mongodb+srv://..."
 MONGODB_DB="starmax"
@@ -130,10 +117,10 @@ The site is built as static Vite assets plus explicit serverless Express entry p
 1. Use `npm run build` as the build command and `dist` as the output directory.
 2. Set `MONGODB_URI`, `MONGODB_DB`, `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and `ADMIN_JWT_SECRET` in the Vercel project's environment variables for the deployments you use.
 3. For image uploads, set `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, and `IMAGEKIT_URL_ENDPOINT`. The private key must only be configured as a server environment variable.
-4. To deliver contact/career email, also set `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, `SMTP_FROM`, and the appropriate contact/careers recipient variables.
+4. Contact, callback, and service enquiries are saved to MongoDB and displayed in the `/admin` inbox; form submissions do not send email.
 5. Redeploy after adding or changing environment variables. Test `/admin` and the API routes on the resulting deployment.
 
-The admin API supports login, clients/gallery/testimonials create/read/update/delete, enquiry inbox and career resume downloads, administrator listing/creation, and ImageKit uploads. Service enquiries are saved to the same admin inbox as other submissions.
+The admin API supports login, clients/gallery/testimonials create/read/update/delete, enquiry inbox and legacy career resume downloads, administrator listing/creation, and ImageKit uploads. Service enquiries are saved to the same admin inbox as other submissions.
 
 ## 7. Deploying the full application to cPanel
 
@@ -146,7 +133,6 @@ The Express server serves both the built frontend and the `/api/*` backend. cPan
    - `NODE_ENV=production`
    - `MONGODB_URI` and `MONGODB_DB`
    - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, and a long random `ADMIN_JWT_SECRET`
-   - For contact and career email: `CONTACT_EMAIL_RECIPIENT`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASSWORD`, and `SMTP_FROM`. `CAREERS_EMAIL_TO` is optional.
    - For admin image uploads: `IMAGEKIT_PUBLIC_KEY`, `IMAGEKIT_PRIVATE_KEY`, and `IMAGEKIT_URL_ENDPOINT`.
 5. In your local checkout, run `npm ci` and `npm run build`.
 6. Upload the **contents** of the local `dist` directory (including `assets/` and `src/assets/`) into `/home/jyobaqhy/repositories/starmax-new/dist/` using cPanel File Manager. Do not upload `.env` or `node_modules`.

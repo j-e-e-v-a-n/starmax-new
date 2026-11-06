@@ -7,7 +7,6 @@ import { MongoClient, ObjectId, type Document } from 'mongodb';
 import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import ImageKit from 'imagekit';
-import nodemailer from 'nodemailer';
 import multer from 'multer';
 import { CLIENTS } from './src/data/clients.js';
 import { GALLERY_ITEMS } from './src/data/gallery.js';
@@ -81,6 +80,47 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
   }
 }
 
+async function ensureDefaultContentInitialized() {
+  const database = await db();
+  const metadata = database.collection('appMetadata');
+  if (await metadata.findOne({ _id: 'default-content-v1' })) return;
+
+  for (const [name, source] of [['clients', CLIENTS], ['gallery', GALLERY_ITEMS], ['testimonials', TESTIMONIALS]] as const) {
+    const collection = database.collection(name);
+    if (await collection.estimatedDocumentCount() === 0) {
+      await collection.insertMany(source.map((item, order) => ({ ...item, active: true, order })));
+    }
+  }
+
+  const clientCollection = database.collection('clients');
+  const newClientNames = new Set(['SKCMS', 'Craftpeople', 'YMCA', 'Pawan & Kin']);
+  for (const [order, client] of CLIENTS.entries()) {
+    const logo = client.logo || client.image;
+    if (!logo?.startsWith('https://ik.imagekit.io/starmax/starmax/')) continue;
+
+    await clientCollection.updateOne(
+      {
+        name: client.name,
+        $or: [
+          { logo: /^data:image\/svg\+xml/ },
+          { image: /^data:image\/svg\+xml/ },
+        ],
+      },
+      { $set: { logo, image: logo } },
+    );
+
+    if (newClientNames.has(client.name)) {
+      await clientCollection.updateOne(
+        { name: client.name },
+        { $setOnInsert: { ...client, active: true, order } },
+        { upsert: true },
+      );
+    }
+  }
+
+  await metadata.insertOne({ _id: 'default-content-v1', completedAt: new Date() });
+}
+
 app.post('/api/admin/login', async (req: Request, res: Response) => {
   if (!tokenSecret || !process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
     return res.status(503).json({ success: false, message: 'Set ADMIN_EMAIL, ADMIN_PASSWORD, and ADMIN_JWT_SECRET before signing in.' });
@@ -92,11 +132,7 @@ app.post('/api/admin/login', async (req: Request, res: Response) => {
     if (ownerEmail && ownerPassword && !await database.collection('admins').findOne({ email: ownerEmail })) {
       await database.collection('admins').insertOne({ email: ownerEmail, passwordHash: await bcrypt.hash(ownerPassword, 12), role: 'owner', createdAt: new Date() });
     }
-    for (const [name, source] of [['clients', CLIENTS], ['gallery', GALLERY_ITEMS], ['testimonials', TESTIMONIALS]] as const) {
-      if (await database.collection(name).estimatedDocumentCount() === 0) {
-        await database.collection(name).insertMany(source.map((item, order) => ({ ...item, active: true, order })));
-      }
-    }
+    await ensureDefaultContentInitialized();
     const email = String(req.body.email || '').trim().toLowerCase();
     const admin = await database.collection('admins').findOne({ email });
     if (!admin || !await bcrypt.compare(String(req.body.password || ''), String(admin.passwordHash))) {
@@ -269,59 +305,42 @@ function checkRateLimit(req: Request, res: Response, next: NextFunction) {
 }
 
 // API Routes
-app.post('/api/callback', checkRateLimit, (req: Request, res: Response) => {
-  const { fullName, phone, email, service, preferredTime, message } = req.body;
-
-  if (!fullName || !phone) {
+app.post('/api/callback', checkRateLimit, async (req: Request, res: Response) => {
+  const { fullName, phone, email, service, preferredTime, message, consent } = req.body;
+  if (!fullName || !phone || !email || !service || !preferredTime || consent !== true) {
     return res.status(400).json({
       success: false,
-      message: 'Full Name and Phone Number are required.'
+      message: 'Please complete all required fields and provide consent.'
     });
   }
 
-  void (async () => {
+  try {
     const database = await db();
-    const record = { fullName, phone, email, service, preferredTime, message, status: 'new', emailStatus: 'pending', createdAt: new Date() };
-    const saved = await database.collection('callbacks').insertOne(record);
-    const emailTo = process.env.ENQUIRY_EMAIL_TO || process.env.CONTACT_EMAIL_RECIPIENT;
-    let emailStatus: 'sent' | 'failed' | 'not_configured' = 'not_configured';
-    if (process.env.SMTP_HOST && emailTo) {
-      const secure = process.env.SMTP_SECURE === 'true';
-      const transport = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT || (secure ? 465 : 587)),
-        secure,
-        requireTLS: !secure,
-        auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD || process.env.SMTP_PASS } : undefined,
-      });
-      try {
-        await transport.sendMail({
-          from: process.env.ENQUIRY_EMAIL_FROM || process.env.SMTP_FROM || process.env.SMTP_USER,
-          to: emailTo,
-          replyTo: email || undefined,
-          subject: `Website callback request: ${fullName}`,
-          text: `A callback was requested from the Starmax Systems website.\n\nName: ${fullName}\nPhone: ${phone}\nEmail: ${email || 'Not provided'}\nService: ${service || 'General enquiry'}\nPreferred time: ${preferredTime || 'Not specified'}\n\nMessage: ${message || 'No message provided'}`,
-        });
-        emailStatus = 'sent';
-      } catch (mailError) {
-        emailStatus = 'failed';
-        console.error('[CALLBACK_EMAIL_FAILED]', mailError instanceof Error ? mailError.message : 'Unknown SMTP error');
-      }
-    } else {
-      console.error('[CALLBACK_EMAIL_FAILED] SMTP_HOST and an enquiry recipient are required.');
-    }
-    await database.collection('callbacks').updateOne({ _id: saved.insertedId }, { $set: { emailStatus } });
-    const emailNote = emailStatus === 'sent'
-      ? ' Our team has also been notified by email.'
-      : ' The request was saved, but the email notification could not be sent. Please call our office if you need an immediate response.';
-    return res.json({ success: true, message: `Thank you, ${fullName}. Your callback request has been received.${emailNote}`, timestamp: record.createdAt.toISOString(), data: { emailStatus } });
-  })().catch((error) => {
+    const createdAt = new Date();
+    const normalizedName = String(fullName).trim();
+    await database.collection('callbacks').insertOne({
+      fullName: normalizedName,
+      phone: String(phone).trim(),
+      email: String(email).trim(),
+      service: String(service).trim(),
+      preferredTime: String(preferredTime).trim(),
+      message: message ? String(message).trim() : '',
+      consent: true,
+      status: 'new',
+      createdAt,
+    });
+    return res.json({
+      success: true,
+      message: `Thank you, ${normalizedName}. Your callback request has been received.`,
+      timestamp: createdAt.toISOString(),
+    });
+  } catch (error) {
     console.error('[CALLBACK_SAVE_FAILED]', error instanceof Error ? error.message : 'Unknown database error');
     if (!res.headersSent) res.status(503).json({ success: false, message: 'We could not save your callback request. Please try again shortly.' });
-  });
+  }
 });
 
-app.post('/api/contact', checkRateLimit, (req: Request, res: Response) => {
+app.post('/api/contact', checkRateLimit, async (req: Request, res: Response) => {
   const { fullName, email, phone, company, service, subject, message } = req.body;
 
   if (!fullName || !email || !phone || !subject || !message || req.body.consent !== true) {
@@ -331,32 +350,35 @@ app.post('/api/contact', checkRateLimit, (req: Request, res: Response) => {
     });
   }
 
-  void (async () => {
+  try {
     const database = await db();
-    const enquiry = { fullName, email, phone, company, service, subject, message, consent: Boolean(req.body.consent), status: 'new', createdAt: new Date() };
+    const enquiry = {
+      fullName: String(fullName).trim(),
+      email: String(email).trim(),
+      phone: String(phone).trim(),
+      company: company ? String(company).trim() : '',
+      service: service ? String(service).trim() : '',
+      subject: String(subject).trim(),
+      message: String(message).trim(),
+      consent: true,
+      status: 'new',
+      createdAt: new Date(),
+    };
     await database.collection('enquiries').insertOne(enquiry);
-    const emailTo = process.env.ENQUIRY_EMAIL_TO || process.env.CONTACT_EMAIL_RECIPIENT;
-    if (process.env.SMTP_HOST && emailTo) {
-      const secure = process.env.SMTP_SECURE === 'true';
-      const transport = nodemailer.createTransport({ host: process.env.SMTP_HOST, port: Number(process.env.SMTP_PORT || 587), secure, requireTLS: !secure, auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD || process.env.SMTP_PASS } : undefined });
-      try {
-        await transport.sendMail({ from: process.env.ENQUIRY_EMAIL_FROM || process.env.SMTP_FROM || process.env.SMTP_USER, to: emailTo, replyTo: email, subject: `Website enquiry: ${subject}`, text: `Name: ${fullName}\nEmail: ${email}\nPhone: ${phone}\nCompany: ${company || 'Not provided'}\nService: ${service}\n\n${message}` });
-      } catch (mailError) { console.error('[ENQUIRY_EMAIL_FAILED]', mailError instanceof Error ? mailError.message : 'Unknown error'); }
-    }
-    res.json({ success: true, message: `Thank you, ${fullName}. Your message has been received by Starmax Systems.` });
-  })().catch((error) => {
+    return res.json({ success: true, message: `Thank you, ${enquiry.fullName}. Your message has been received by Starmax Systems.` });
+  } catch (error) {
     console.error('[CONTACT_SUBMIT_FAILED]', error instanceof Error ? error.message : 'Unknown error');
     if (!res.headersSent) res.status(503).json({ success: false, message: 'We could not save your enquiry. Please try again shortly.' });
-  });
+  }
 });
 
 app.post('/api/enquiry', checkRateLimit, async (req: Request, res: Response) => {
-  const { fullName, phone, email, company, service, location, message } = req.body;
+  const { fullName, phone, email, company, service, location, message, consent } = req.body;
 
-  if (!fullName || !phone || !email || !service || !location) {
+  if (!fullName || !phone || !email || !service || !location || consent !== true) {
     return res.status(400).json({
       success: false,
-      message: 'Please provide required contact and location information.'
+      message: 'Please provide required contact, location, and consent information.'
     });
   }
 
@@ -370,6 +392,7 @@ app.post('/api/enquiry', checkRateLimit, async (req: Request, res: Response) => 
       service: String(service).trim(),
       location: String(location).trim(),
       message: message ? String(message).trim() : '',
+      consent: true,
       status: 'new',
       createdAt,
     });
@@ -411,54 +434,10 @@ app.post('/api/careers', checkRateLimit, parseCareerResume, async (req: Request,
       consent: true,
       resumeFileName: path.basename(resume.originalname),
       resume: { fileName: path.basename(resume.originalname), mimeType: resume.mimetype, size: resume.size, contents: resume.buffer },
-      emailStatus: 'pending',
       createdAt: now,
     };
-    const saved = await database.collection('careerApplications').insertOne(application);
-    const recipient = process.env.CAREERS_EMAIL_TO || process.env.ENQUIRY_EMAIL_TO || process.env.CONTACT_EMAIL_RECIPIENT;
-    let emailStatus: 'sent' | 'failed' | 'not_configured' = 'not_configured';
-
-    if (process.env.SMTP_HOST && recipient) {
-      const secure = process.env.SMTP_SECURE === 'true';
-      const transport = nodemailer.createTransport({
-        host: process.env.SMTP_HOST,
-        port: Number(process.env.SMTP_PORT || (secure ? 465 : 587)),
-        secure,
-        requireTLS: !secure,
-        auth: process.env.SMTP_USER ? { user: process.env.SMTP_USER, pass: process.env.SMTP_PASSWORD || process.env.SMTP_PASS } : undefined,
-      });
-      try {
-        await transport.sendMail({
-          from: process.env.ENQUIRY_EMAIL_FROM || process.env.SMTP_FROM || process.env.SMTP_USER,
-          to: recipient,
-          replyTo: email,
-          subject: `Careers application: ${fullName}`,
-          text: [
-            'A new employment application was submitted through the Starmax Systems website.',
-            '',
-            `Full name: ${fullName}`,
-            `Email: ${email}`,
-            `Educational qualification: ${educationalQualification}`,
-            `Resume: ${application.resume.fileName}`,
-            '',
-            'The candidate consented to processing their application information.',
-          ].join('\n'),
-          attachments: [{ filename: application.resume.fileName, content: resume.buffer, contentType: resume.mimetype }],
-        });
-        emailStatus = 'sent';
-      } catch (mailError) {
-        emailStatus = 'failed';
-        console.error('[CAREER_EMAIL_FAILED]', mailError instanceof Error ? mailError.message : 'Unknown SMTP error');
-      }
-    } else {
-      console.error('[CAREER_EMAIL_FAILED] SMTP_HOST and a careers recipient are required.');
-    }
-
-    await database.collection('careerApplications').updateOne({ _id: saved.insertedId }, { $set: { emailStatus } });
-    const emailMessage = emailStatus === 'sent'
-      ? 'The application was sent to our recruitment team with the CV attached.'
-      : 'The application and CV were saved, but the recruitment email could not be sent. Please contact our office to confirm receipt.';
-    return res.json({ success: true, message: `Thank you, ${fullName}. ${emailMessage}`, data: { emailStatus } });
+    await database.collection('careerApplications').insertOne(application);
+    return res.json({ success: true, message: `Thank you, ${fullName}. Your application has been saved.` });
   } catch (error) {
     console.error('[CAREER_APPLICATION_FAILED]', error instanceof Error ? error.message : 'Unknown database error');
     return res.status(503).json({ success: false, message: 'We could not securely save your application. Please try again shortly.' });

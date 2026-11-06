@@ -11,7 +11,6 @@ const COMPANY_LINKS = [
   { label: 'Gallery', href: '/gallery' },
   { label: 'Top Clients', href: '/clients' },
   // { label: 'Testimonials', href: '/testimonials' },
-  // { label: 'Careers', href: '/careers' },
   { label: 'Contact Us', href: '/contact' },
 ];
 

@@ -20,7 +20,7 @@ export const CallbackForm: React.FC<CallbackFormProps> = ({ onSuccess, defaultSe
     service: defaultService || SERVICES[0].title,
     preferredTime: 'Morning (9:00 AM - 1:00 PM)',
     message: '',
-    consent: true
+    consent: false
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});

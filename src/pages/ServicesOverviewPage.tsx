@@ -29,11 +29,11 @@ export const ServicesOverviewPage: React.FC = () => {
       {/* Services Grid */}
       <section className="section-pad border-b border-rule bg-white">
         <div className="container-x">
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          <div className="flex flex-wrap items-stretch justify-center gap-4 sm:gap-6">
             {SERVICES.map((service, index) => (
               <div
                 key={service.slug}
-                className="bg-white rounded-[2px] border border-rule overflow-hidden hover:border-blue transition-colors duration-300 flex flex-col justify-between group"
+                className="w-full sm:w-[calc(50%_-_0.75rem)] lg:w-[calc(25%_-_1.125rem)] bg-white rounded-[2px] border border-rule overflow-hidden hover:border-blue transition-colors duration-300 flex flex-col justify-between group"
               >
                 <div>
                   <div className="relative h-32 sm:h-48 overflow-hidden bg-mist">

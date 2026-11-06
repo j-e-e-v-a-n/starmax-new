@@ -142,17 +142,17 @@ const svgMaqtro = createSvgLogo(`
 
 export const CLIENTS: ClientItem[] = [
   { id: '1', name: 'Tata', industry: 'Conglomerate & Enterprise', logo: svgTata, image: svgTata },
-  { id: '2', name: 'Mahindra Logistics', industry: 'Logistics & Supply Chain', logo: svgMahindra, image: svgMahindra },
+  { id: '2', name: 'Mahindra Logistics', industry: 'Logistics & Supply Chain', logo: 'https://ik.imagekit.io/starmax/starmax/mahindra_A8a7Re6lo.jpeg?updatedAt=1793968133520', image: 'https://ik.imagekit.io/starmax/starmax/mahindra_A8a7Re6lo.jpeg?updatedAt=1793968133520' },
   { id: '3', name: 'RailTel', industry: 'Telecommunications & Infrastructure', logo: svgRailTel, image: svgRailTel },
-  { id: '4', name: 'KTDC', industry: 'Hospitality & Tourism', logo: svgKTDC, image: svgKTDC },
+  { id: '4', name: 'KTDC', industry: 'Hospitality & Tourism', logo: 'https://ik.imagekit.io/starmax/starmax/ktdc_6ONjE4IEo.jpeg?updatedAt=1793966902833', image: 'https://ik.imagekit.io/starmax/starmax/ktdc_6ONjE4IEo.jpeg?updatedAt=1793966902833' },
   { id: '5', name: 'Kinder Hospital', industry: 'Healthcare & Medical', logo: svgKinder, image: svgKinder },
   { id: '6', name: 'Skyline', industry: 'Real Estate & Construction', logo: svgSkyline, image: svgSkyline },
   { id: '7', name: 'Purva GrandBay', industry: 'Residential & Commercial Spaces', logo: svgPurva, image: svgPurva },
-  { id: '8', name: 'DLife', industry: 'Interior Design & Furnishing', logo: svgDLife, image: svgDLife },
+  { id: '8', name: 'DLife', industry: 'Interior Design & Furnishing', logo: 'https://ik.imagekit.io/starmax/starmax/dlife_mjfXLCayR.jpeg', image: 'https://ik.imagekit.io/starmax/starmax/dlife_mjfXLCayR.jpeg' },
   { id: '9', name: 'Bose', industry: 'Audio & Consumer Electronics', logo: svgBose, image: svgBose },
   { id: '10', name: 'Next Education', industry: 'Educational Technology', logo: svgNextEdu, image: svgNextEdu },
   { id: '11', name: 'KR Bakes', industry: 'Food & Retail Chains', logo: svgKRBakes, image: svgKRBakes },
-  { id: '12', name: 'Zodiac', industry: 'Apparel & Retail', logo: svgZodiac, image: svgZodiac },
+  { id: '12', name: 'Zodiac', industry: 'Apparel & Retail', logo: 'https://ik.imagekit.io/starmax/starmax/zodiac_dMu4NTzUn.jpeg?updatedAt=1793968109841', image: 'https://ik.imagekit.io/starmax/starmax/zodiac_dMu4NTzUn.jpeg?updatedAt=1793968109841' },
   { id: '13', name: 'Travancore', industry: 'Corporate & Hospitality', logo: svgTravancore, image: svgTravancore },
   { id: '14', name: 'Janatha', industry: 'Commercial Enterprises' },
   { id: '15', name: 'VGC Beena', industry: 'Business Group' },
@@ -161,5 +161,9 @@ export const CLIENTS: ClientItem[] = [
   { id: '18', name: 'Maqtro', industry: 'Infrastructure & Projects', logo: svgMaqtro, image: svgMaqtro },
   { id: '19', name: 'Royal', industry: 'Commercial Premises' },
   { id: '20', name: 'Devas', industry: 'Enterprises' },
-  { id: '21', name: 'Donmax', industry: 'Commercial Solutions' }
+  { id: '21', name: 'Donmax', industry: 'Commercial Solutions' },
+  { id: '22', name: 'SKCMS', industry: 'Education', logo: 'https://ik.imagekit.io/starmax/starmax/SKCMS_3K8SUXtuLJ.jpeg?updatedAt=1793968100989', image: 'https://ik.imagekit.io/starmax/starmax/SKCMS_3K8SUXtuLJ.jpeg?updatedAt=1793968100989' },
+  { id: '23', name: 'Craftpeople', industry: 'Commercial & Retail', logo: 'https://ik.imagekit.io/starmax/starmax/craftpeople_bbnoiRnPs6.jpeg?updatedAt=1793967156086', image: 'https://ik.imagekit.io/starmax/starmax/craftpeople_bbnoiRnPs6.jpeg?updatedAt=1793967156086' },
+  { id: '24', name: 'YMCA', industry: 'Community & Recreation', logo: 'https://ik.imagekit.io/starmax/starmax/ymca_kATP5KT5rE.jpeg?updatedAt=1793967130787', image: 'https://ik.imagekit.io/starmax/starmax/ymca_kATP5KT5rE.jpeg?updatedAt=1793967130787' },
+  { id: '25', name: 'Pawan & Kin', industry: 'Commercial & Retail', logo: 'https://ik.imagekit.io/starmax/starmax/pawandkin_RNvMtjh3_.jpeg?updatedAt=1793966990653', image: 'https://ik.imagekit.io/starmax/starmax/pawandkin_RNvMtjh3_.jpeg?updatedAt=1793966990653' }
 ];

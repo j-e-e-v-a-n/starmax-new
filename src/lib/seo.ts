@@ -74,11 +74,6 @@ const ROUTE_SEO: Record<string, RouteSeo> = {
     description:
       'Trusted by 500+ clients across Kerala — banks, builders, hospitals, retailers, schools and industries rely on Starmax Systems for security and network infrastructure.',
   },
-  '/careers': {
-    title: 'Careers at Starmax Systems | Kochi, Kerala',
-    description:
-      'Careers at Starmax Systems, Kochi — open roles for security system technicians, network engineers and site engineers. Apply online and grow with a Kerala-based security company.',
-  },
   '/testimonials': {
     title: 'Client Testimonials | Starmax Systems Kochi',
     description:
