@@ -18,7 +18,7 @@ export const ServiceEnquiryForm: React.FC<ServiceEnquiryFormProps> = ({ serviceT
     service: serviceTitle,
     location: '',
     message: '',
-    consent: false
+    consent: true
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});

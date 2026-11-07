@@ -8,9 +8,6 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import ImageKit from 'imagekit';
 import multer from 'multer';
-import { CLIENTS } from './src/data/clients.js';
-import { GALLERY_ITEMS } from './src/data/gallery.js';
-import { TESTIMONIALS } from './src/data/testimonials.js';
 
 dotenv.config();
 
@@ -80,47 +77,6 @@ function requireAdmin(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-async function ensureDefaultContentInitialized() {
-  const database = await db();
-  const metadata = database.collection('appMetadata');
-  if (await metadata.findOne({ _id: 'default-content-v1' })) return;
-
-  for (const [name, source] of [['clients', CLIENTS], ['gallery', GALLERY_ITEMS], ['testimonials', TESTIMONIALS]] as const) {
-    const collection = database.collection(name);
-    if (await collection.estimatedDocumentCount() === 0) {
-      await collection.insertMany(source.map((item, order) => ({ ...item, active: true, order })));
-    }
-  }
-
-  const clientCollection = database.collection('clients');
-  const newClientNames = new Set(['SKCMS', 'Craftpeople', 'YMCA', 'Pawan & Kin']);
-  for (const [order, client] of CLIENTS.entries()) {
-    const logo = client.logo || client.image;
-    if (!logo?.startsWith('https://ik.imagekit.io/starmax/starmax/')) continue;
-
-    await clientCollection.updateOne(
-      {
-        name: client.name,
-        $or: [
-          { logo: /^data:image\/svg\+xml/ },
-          { image: /^data:image\/svg\+xml/ },
-        ],
-      },
-      { $set: { logo, image: logo } },
-    );
-
-    if (newClientNames.has(client.name)) {
-      await clientCollection.updateOne(
-        { name: client.name },
-        { $setOnInsert: { ...client, active: true, order } },
-        { upsert: true },
-      );
-    }
-  }
-
-  await metadata.insertOne({ _id: 'default-content-v1', completedAt: new Date() });
-}
-
 app.post('/api/admin/login', async (req: Request, res: Response) => {
   if (!tokenSecret || !process.env.ADMIN_EMAIL || !process.env.ADMIN_PASSWORD) {
     return res.status(503).json({ success: false, message: 'Set ADMIN_EMAIL, ADMIN_PASSWORD, and ADMIN_JWT_SECRET before signing in.' });
@@ -132,7 +88,6 @@ app.post('/api/admin/login', async (req: Request, res: Response) => {
     if (ownerEmail && ownerPassword && !await database.collection('admins').findOne({ email: ownerEmail })) {
       await database.collection('admins').insertOne({ email: ownerEmail, passwordHash: await bcrypt.hash(ownerPassword, 12), role: 'owner', createdAt: new Date() });
     }
-    await ensureDefaultContentInitialized();
     const email = String(req.body.email || '').trim().toLowerCase();
     const admin = await database.collection('admins').findOne({ email });
     if (!admin || !await bcrypt.compare(String(req.body.password || ''), String(admin.passwordHash))) {
@@ -227,10 +182,42 @@ app.get('/api/admin/enquiries', requireAdmin, async (_req: Request, res: Respons
     ].sort((a, b) => new Date(String(b.record.createdAt)).getTime() - new Date(String(a.record.createdAt)).getTime());
     const data = combined.map(({ record, kind }) => {
       const { _id, ...item } = record;
-      return { ...item, kind, id: String(_id) };
+      const source = kind === 'Enquiry' ? 'enquiries' : kind === 'Callback request' ? 'callbacks' : 'careerApplications';
+      return { ...item, kind, source, status: item.status === 'closed' ? 'closed' : 'open', id: String(_id) };
     });
     return res.json({ success: true, data });
   } catch (error) { return res.status(503).json({ success: false, message: error instanceof Error ? error.message : 'Inbox unavailable.' }); }
+});
+
+app.patch('/api/admin/enquiries/:source/:id', requireAdmin, async (req: Request, res: Response) => {
+  const allowedSources = ['enquiries', 'callbacks', 'careerApplications'];
+  const status = req.body.status;
+  if (!allowedSources.includes(req.params.source)) return res.status(404).json({ success: false, message: 'Unknown request type.' });
+  if (!ObjectId.isValid(req.params.id)) return res.status(400).json({ success: false, message: 'Invalid request ID.' });
+  if (status !== 'open' && status !== 'closed') return res.status(400).json({ success: false, message: 'Status must be open or closed.' });
+  try {
+    const result = await (await db()).collection(req.params.source).updateOne(
+      { _id: new ObjectId(req.params.id) },
+      { $set: { status, updatedAt: new Date() } },
+    );
+    if (!result.matchedCount) return res.status(404).json({ success: false, message: 'Request not found.' });
+    return res.json({ success: true, message: `Request marked ${status}.` });
+  } catch (error) {
+    return res.status(503).json({ success: false, message: error instanceof Error ? error.message : 'Could not update request status.' });
+  }
+});
+
+app.delete('/api/admin/enquiries/:source/:id', requireAdmin, async (req: Request, res: Response) => {
+  const allowedSources = ['enquiries', 'callbacks', 'careerApplications'];
+  if (!allowedSources.includes(req.params.source)) return res.status(404).json({ success: false, message: 'Unknown request type.' });
+  if (!ObjectId.isValid(req.params.id)) return res.status(400).json({ success: false, message: 'Invalid request ID.' });
+  try {
+    const result = await (await db()).collection(req.params.source).deleteOne({ _id: new ObjectId(req.params.id) });
+    if (!result.deletedCount) return res.status(404).json({ success: false, message: 'Request not found.' });
+    return res.json({ success: true, message: 'Request deleted.' });
+  } catch (error) {
+    return res.status(503).json({ success: false, message: error instanceof Error ? error.message : 'Could not delete request.' });
+  }
 });
 
 app.get('/api/admin/careers/:id/resume', requireAdmin, async (req: Request, res: Response) => {

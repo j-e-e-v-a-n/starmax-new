@@ -15,7 +15,7 @@ export const ContactForm: React.FC = () => {
     service: 'General Enquiry',
     subject: '',
     message: '',
-    consent: false
+    consent: true
   });
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -77,7 +77,7 @@ export const ContactForm: React.FC = () => {
         service: 'General Enquiry',
         subject: '',
         message: '',
-        consent: false
+        consent: true
       });
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : 'An error occurred while sending your message. Please try again.';

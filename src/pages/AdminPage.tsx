@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowUpRight, ImagePlus, LogOut, Plus, Save, Trash2, X } from 'lucide-react';
+import { ArrowUpRight, Check, ImagePlus, LogOut, Mail, Phone, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react';
 import { useRouter } from '../router';
 
 type Tab = 'clients' | 'gallery' | 'testimonials' | 'enquiries' | 'admins';
@@ -170,6 +170,47 @@ export const AdminPage: React.FC = () => {
     finally { setBusy(false); }
   };
 
+  const updateEnquiryStatus = async (item: RecordItem) => {
+    const source = String(item.source || '');
+    const id = String(item.id || '');
+    const status = item.status === 'closed' ? 'open' : 'closed';
+    setBusy(true);
+    setNotice('');
+    try {
+      await request(`/api/admin/enquiries/${encodeURIComponent(source)}/${encodeURIComponent(id)}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      });
+      setItems((current) => current.map((entry) => entry.id === item.id && entry.source === item.source ? { ...entry, status } : entry));
+      setNotice(status === 'closed' ? 'Request marked closed.' : 'Request reopened.');
+      setNoticeType('success');
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not update request status.');
+      setNoticeType('error');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const deleteEnquiry = async (item: RecordItem) => {
+    if (!window.confirm('Delete this customer request permanently?')) return;
+    const source = String(item.source || '');
+    const id = String(item.id || '');
+    setBusy(true);
+    setNotice('');
+    try {
+      await request(`/api/admin/enquiries/${encodeURIComponent(source)}/${encodeURIComponent(id)}`, { method: 'DELETE' });
+      setItems((current) => current.filter((entry) => entry.id !== item.id || entry.source !== item.source));
+      setNotice('Request deleted.');
+      setNoticeType('success');
+    } catch (error) {
+      setNotice(error instanceof Error ? error.message : 'Could not delete request.');
+      setNoticeType('error');
+    } finally {
+      setBusy(false);
+    }
+  };
+
   const downloadResume = async (id: string) => {
     try {
       const response = await fetch(`/api/admin/careers/${encodeURIComponent(id)}/resume`, { headers: { Authorization: `Bearer ${token}` } });
@@ -228,11 +269,11 @@ export const AdminPage: React.FC = () => {
   const previewImage = String(selected[imageField] || '');
 
   return (
-    <main className="min-h-screen bg-mist py-8 sm:py-10">
+    <main className="min-h-screen bg-mist py-5 sm:py-10">
       <div className="container-x">
-        <header className="mb-7 flex flex-wrap items-center justify-between gap-4">
+        <header className="mb-6 flex flex-col items-start justify-between gap-4 sm:mb-7 sm:flex-row sm:items-center">
           <div><p className="label mb-1">Starmax Systems</p><h1 className="text-3xl sm:text-4xl">Admin panel</h1><p className="mt-2 text-sm text-muted">Manage public content and customer requests.</p></div>
-          <div className="flex gap-2"><button onClick={() => navigate('/')} className="btn outline">View website <ArrowUpRight className="h-4 w-4" /></button><button onClick={signOut} className="btn outline"><LogOut className="h-4 w-4" /> Sign out</button></div>
+          <div className="flex w-full flex-wrap gap-2 sm:w-auto"><button onClick={() => navigate('/')} className="btn outline flex-1 justify-center sm:flex-none">View website <ArrowUpRight className="h-4 w-4" /></button><button onClick={signOut} className="btn outline flex-1 justify-center sm:flex-none"><LogOut className="h-4 w-4" /> Sign out</button></div>
         </header>
 
         <nav className="mb-6 flex gap-2 overflow-x-auto pb-1" aria-label="Admin sections">
@@ -270,22 +311,23 @@ export const AdminPage: React.FC = () => {
             {busy && !items.length ? (
               <p className="border border-rule bg-white p-6 text-sm text-muted">Loading requests…</p>
             ) : items.map((item) => (
-              <article key={String(item.id)} className="border border-rule bg-white p-5">
-                <div className="flex flex-wrap justify-between gap-2">
-                  <div>
+              <article key={`${String(item.source)}-${String(item.id)}`} className="overflow-hidden border border-rule bg-white p-4 shadow-sm sm:p-5">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-start sm:justify-between">
+                  <div className="min-w-0">
                     <span className="text-[10px] font-semibold uppercase tracking-wider text-blue">
                       {String(item.kind || 'Enquiry')}
                     </span>
-                    <h2 className="font-semibold">{String(item.subject || item.fullName || 'Website request')}</h2>
+                    <h2 className="break-words text-lg font-semibold">{String(item.subject || item.fullName || 'Website request')}</h2>
                   </div>
-                  <time className="text-xs text-muted">
+                  <time className="shrink-0 text-xs text-muted">
                     {item.createdAt ? new Date(String(item.createdAt)).toLocaleString() : ''}
                   </time>
                 </div>
-                <p className="mt-2 text-sm">
-                  {String(item.fullName || 'Name not provided')} · {String(item.email || 'No email')}
-                  {item.phone ? ` · ${String(item.phone)}` : ''}
-                </p>
+                <p className="mt-3 break-words text-sm font-medium">{String(item.fullName || 'Name not provided')}</p>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {item.email && <a href={`mailto:${encodeURIComponent(String(item.email))}`} className="inline-flex min-h-10 max-w-full items-center gap-2 rounded-sm border border-rule px-3 py-2 text-sm text-blue hover:border-blue hover:bg-blue/5"><Mail className="h-4 w-4 shrink-0" /><span className="break-all">{String(item.email)}</span></a>}
+                  {item.phone && <a href={`tel:${String(item.phone).replace(/[^\d+]/g, '')}`} className="inline-flex min-h-10 items-center gap-2 rounded-sm border border-rule px-3 py-2 text-sm text-blue hover:border-blue hover:bg-blue/5"><Phone className="h-4 w-4 shrink-0" /><span>{String(item.phone)}</span></a>}
+                </div>
                 {Boolean(item.educationalQualification) && (
                   <p className="mt-1 text-sm text-muted">Qualification: {String(item.educationalQualification)}</p>
                 )}
@@ -308,6 +350,20 @@ export const AdminPage: React.FC = () => {
                     Download CV · {String(item.resumeFileName)}
                   </button>
                 )}
+                <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-3">
+                  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${item.status === 'closed' ? 'bg-mist text-muted' : 'bg-emerald-50 text-emerald-700'}`}>
+                    {item.status === 'closed' ? 'Closed' : 'Open'}
+                  </span>
+                  <div className="flex w-full flex-wrap gap-2 sm:w-auto">
+                    <button type="button" disabled={busy} onClick={() => void updateEnquiryStatus(item)} className="btn outline min-h-10 flex-1 justify-center sm:flex-none">
+                      {item.status === 'closed' ? <RotateCcw className="h-4 w-4" /> : <Check className="h-4 w-4" />}
+                      {item.status === 'closed' ? 'Reopen' : 'Mark closed'}
+                    </button>
+                    <button type="button" disabled={busy} onClick={() => void deleteEnquiry(item)} className="btn outline min-h-10 flex-1 justify-center border-red-200 text-red-700 hover:bg-red-50 sm:flex-none">
+                      <Trash2 className="h-4 w-4" /> Delete
+                    </button>
+                  </div>
+                </div>
               </article>
             ))}
             {!busy && !items.length && (
