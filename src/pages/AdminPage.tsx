@@ -388,21 +388,20 @@ export const AdminPage: React.FC = () => {
         )}
 
         {contentTab && <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(360px,0.9fr)]">
-          <section className="space-y-3">
-            <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl capitalize">{tab} directory</h2><p className="mt-1 text-sm text-muted">Select an item to edit or add a new one.</p></div><button type="button" onClick={startNewItem} className="btn solid"><Plus className="h-4 w-4" /> Add {tab === 'clients' ? 'client' : tab === 'gallery' ? 'gallery item' : 'testimonial'}</button></div>
+          <section className="min-w-0 space-y-3">
+            <div className="flex min-w-0 flex-col items-stretch gap-3 sm:flex-row sm:items-center sm:justify-between"><div className="min-w-0"><h2 className="text-2xl capitalize">{tab} directory</h2><p className="mt-1 text-sm text-muted">Select an item to edit or add a new one.</p></div><button type="button" onClick={startNewItem} className="btn solid w-full shrink-0 justify-center sm:w-auto"><Plus className="h-4 w-4" /> Add {tab === 'clients' ? 'client' : tab === 'gallery' ? 'gallery item' : 'testimonial'}</button></div>
             {busy && !items.length && <p className="border border-rule bg-white p-5 text-sm text-muted">Loading {tab}…</p>}
-            {items.length > 0 && (
-              <div className="-mx-1 overflow-x-auto px-1 pb-2 [scrollbar-width:thin] [-webkit-overflow-scrolling:touch]" role="region" aria-label={`${tab} directory items`} tabIndex={0}>
-                <div className="min-w-[440px] space-y-3">
-                  {items.map((item) => <article key={String(item.id)} className={`flex min-w-0 items-center gap-2 border bg-white p-2.5 sm:gap-3 sm:p-4 ${selected.id === item.id ? 'border-blue ring-1 ring-blue/20' : 'border-rule'}`}>
-                    {Boolean(item.image || item.avatar || item.logo) && <img src={String(item.image || item.avatar || item.logo)} alt="" className="h-11 w-12 shrink-0 rounded-sm border border-rule bg-mist object-contain p-1 sm:h-12 sm:w-16" />}
-                    <button type="button" onClick={() => { setSelected(item); setNotice(''); scrollToEditor(); }} className="min-w-0 flex-1 text-left"><strong className="block truncate text-sm">{String(item.name || item.title || item.quote || 'Untitled')}</strong><span className="mt-1 block truncate text-xs text-muted">{String(item.industry || item.categoryLabel || item.clientReference || '')}</span></button>
-                    <span className={`hidden rounded-full px-2 py-1 text-[10px] sm:inline-block ${item.active === false ? 'bg-mist text-muted' : 'bg-emerald-50 text-emerald-700'}`}>{item.active === false ? 'Hidden' : 'Published'}</span>
-                    <button type="button" onClick={() => void remove(String(item.id))} disabled={busy} aria-label={`Delete ${String(item.name || item.title || 'item')}`} className="inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center gap-1 rounded-sm border border-red-200 px-2 text-red-700 hover:bg-red-50 disabled:opacity-50 sm:px-2.5"><Trash2 className="h-4 w-4" /><span className="text-xs font-medium sm:hidden">Delete</span></button>
-                  </article>)}
-                </div>
+            {items.map((item) => <article
+              key={String(item.id)}
+              className={`flex min-w-0 items-center gap-2 overflow-hidden border bg-white p-2.5 sm:gap-3 sm:p-4 ${selected.id === item.id ? 'border-blue ring-1 ring-blue/20' : 'border-rule'}`}
+            >
+              <div className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+                  {Boolean(item.image || item.avatar || item.logo) && <img src={String(item.image || item.avatar || item.logo)} alt="" className="h-11 w-12 shrink-0 rounded-sm border border-rule bg-mist object-contain p-1 sm:h-12 sm:w-16" />}
+                  <button type="button" onClick={() => { setSelected(item); setNotice(''); scrollToEditor(); }} className="min-w-0 flex-1 text-left"><strong className="block truncate text-sm">{String(item.name || item.title || item.quote || 'Untitled')}</strong><span className="mt-1 block truncate text-xs text-muted">{String(item.industry || item.categoryLabel || item.clientReference || '')}</span></button>
+                  <span className={`hidden shrink-0 rounded-full px-2 py-1 text-[10px] sm:inline-block ${item.active === false ? 'bg-mist text-muted' : 'bg-emerald-50 text-emerald-700'}`}>{item.active === false ? 'Hidden' : 'Published'}</span>
               </div>
-            )}
+              <button type="button" onClick={() => void remove(String(item.id))} disabled={busy} aria-label={`Delete ${String(item.name || item.title || 'item')}`} className="inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center gap-1 rounded-sm border border-red-200 bg-white px-2 text-red-700 hover:bg-red-50 disabled:opacity-50 sm:px-2.5"><Trash2 className="h-4 w-4" /><span className="text-xs font-medium sm:hidden">Delete</span></button>
+            </article>)}
             {!busy && !items.length && <div className="border border-dashed border-rule bg-white p-8 text-center"><p className="font-medium">No {tab} yet</p><p className="mt-1 text-sm text-muted">Add your first item to publish it on the website.</p><button type="button" onClick={startNewItem} className="btn outline mt-4"><Plus className="h-4 w-4" /> Add {tab === 'clients' ? 'client' : tab === 'gallery' ? 'gallery item' : 'testimonial'}</button></div>}
           </section>
 
