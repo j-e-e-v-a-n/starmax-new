@@ -71,48 +71,81 @@ function buildLeadEmailHtml(kind: string, fields: Record<string, string>, replyT
 
   return `<!doctype html>
 <html lang="en">
-  <body style="margin:0;padding:0;background:#f2f5f9;font-family:Arial,Helvetica,sans-serif;color:#14243a;">
-    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f2f5f9;padding:32px 12px;">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="x-apple-disable-message-reformatting" />
+    <title>New ${safeKind} · Starmax Systems</title>
+  </head>
+  <body style="margin:0;padding:0;background:#f4f6f8;font-family:Arial,Helvetica,sans-serif;color:#1e293b;">
+
+    <!-- Preheader (inbox preview text) -->
+    <div style="display:none;max-height:0;overflow:hidden;opacity:0;color:transparent;">
+      New ${safeKind} request submitted through the Starmax Systems website.
+    </div>
+
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="background:#f4f6f8;">
       <tr>
-        <td align="center">
-          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e2e8f0;">
+        <td align="center" style="padding:40px 16px;">
+
+          <table role="presentation" width="600" cellpadding="0" cellspacing="0" border="0" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e5e9ef;border-radius:8px;">
+
+            <!-- Header -->
             <tr>
-              <td style="padding:24px 28px;background:#071039;border-bottom:4px solid #2475b8;">
-                <div style="font-size:20px;line-height:1.2;font-weight:700;letter-spacing:.3px;color:#ffffff;">STARMAX <span style="color:#76b9f1;">SYSTEMS</span></div>
-                <div style="padding-top:6px;color:#cbd5e1;font-size:11px;letter-spacing:1.5px;">SECURITY SYSTEMS &amp; AUTOMATION</div>
+              <td style="padding:28px 36px 22px;border-bottom:1px solid #e5e9ef;">
+                <a href="https://starmaxsystems.com" style="text-decoration:none;">
+                  <img src="https://starmaxsystems.com/src/assets/icon/logo.png" width="150" alt="Starmax Systems" style="display:block;width:150px;max-width:100%;height:auto;border:0;" />
+                </a>
               </td>
             </tr>
+
+            <!-- Title -->
             <tr>
-              <td style="padding:28px 28px 12px;">
-                <div style="color:#2475b8;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;">Website notification</div>
-                <h1 style="margin:8px 0 8px;color:#10243a;font-size:24px;line-height:1.3;">New ${safeKind}</h1>
-                <p style="margin:0;color:#637083;font-size:14px;line-height:1.6;">A new request was submitted through the Starmax Systems website. Details are below.</p>
+              <td style="padding:32px 36px 8px;">
+                <div style="color:#2475b8;font-size:11px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;">Website enquiry</div>
+                <h1 style="margin:10px 0 10px;color:#0f172a;font-size:22px;line-height:1.3;font-weight:700;">New ${safeKind}</h1>
+                <p style="margin:0;color:#64748b;font-size:14px;line-height:1.6;">
+                  A new request was submitted through the Starmax Systems website.
+                </p>
               </td>
             </tr>
+
+            <!-- Details -->
             <tr>
-              <td style="padding:16px 28px 24px;">
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #e8edf3;border-collapse:collapse;">
+              <td style="padding:24px 36px 8px;">
+                <table role="presentation" width="100%" cellpadding="0" cellspacing="0" border="0" style="border:1px solid #e5e9ef;border-radius:6px;border-collapse:separate;">
                   ${rows}
                 </table>
-                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;">
+              </td>
+            </tr>
+
+            <!-- Actions -->
+            <tr>
+              <td style="padding:24px 36px 36px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0">
                   <tr>
-                    <td style="background:#174a78;">
-                      <a href="mailto:${safeReplyTo}" style="display:inline-block;padding:12px 18px;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;">Reply to customer</a>
+                    <td style="border-radius:6px;background:#174a78;">
+                      <a href="mailto:${safeReplyTo}" style="display:inline-block;padding:12px 22px;color:#ffffff;text-decoration:none;font-size:14px;font-weight:700;border-radius:6px;">Reply to customer</a>
                     </td>
-                    <td style="padding-left:10px;">
-                      <a href="tel:${COMPANY_INFO.contacts.primaryPhoneRaw}" style="display:inline-block;padding:11px 16px;border:1px solid #d6deea;color:#174a78;text-decoration:none;font-size:13px;font-weight:700;">Call Starmax</a>
+                    <td style="padding-left:12px;">
+                      <a href="tel:${COMPANY_INFO.contacts.primaryPhoneRaw}" style="display:inline-block;padding:11px 20px;border:1px solid #cbd5e1;border-radius:6px;color:#174a78;text-decoration:none;font-size:14px;font-weight:700;">Call Starmax</a>
                     </td>
                   </tr>
                 </table>
               </td>
             </tr>
+
+            <!-- Footer -->
             <tr>
-              <td style="padding:18px 28px;background:#f8fafc;border-top:1px solid #e8edf3;color:#748094;font-size:12px;line-height:1.6;">
-                Starmax Systems · ${escapeEmailHtml(COMPANY_INFO.registeredOffice.shortAddress)}<br />
+              <td style="padding:20px 36px;background:#f8fafc;border-top:1px solid #e5e9ef;border-radius:0 0 8px 8px;color:#64748b;font-size:12px;line-height:1.6;">
+                <strong style="color:#334155;">Starmax Systems</strong><br />
+                ${escapeEmailHtml(COMPANY_INFO.registeredOffice.shortAddress)}<br />
                 <a href="https://starmaxsystems.com" style="color:#2475b8;text-decoration:none;">starmaxsystems.com</a>
               </td>
             </tr>
+
           </table>
+
         </td>
       </tr>
     </table>
