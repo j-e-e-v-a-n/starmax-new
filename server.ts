@@ -8,6 +8,8 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import ImageKit from 'imagekit';
 import multer from 'multer';
+import nodemailer, { type Transporter } from 'nodemailer';
+import { COMPANY_INFO } from './src/data/company.ts';
 
 dotenv.config();
 
@@ -39,9 +41,45 @@ function filterGpsGalleryItems(items: Document[]): Document[] {
   });
 }
 const tokenSecret = process.env.ADMIN_JWT_SECRET || '';
+let mailTransport: Transporter | null = null;
 const media = process.env.IMAGEKIT_PUBLIC_KEY && process.env.IMAGEKIT_PRIVATE_KEY && process.env.IMAGEKIT_URL_ENDPOINT
   ? new ImageKit({ publicKey: process.env.IMAGEKIT_PUBLIC_KEY, privateKey: process.env.IMAGEKIT_PRIVATE_KEY, urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT })
   : null;
+
+async function sendLeadNotification(kind: string, fields: Record<string, string>, replyTo: string) {
+  const host = process.env.SMTP_HOST?.trim();
+  if (!host) throw new Error('Email is not configured. Set SMTP_HOST and SMTP credentials.');
+
+  if (!mailTransport) {
+    const port = Number(process.env.SMTP_PORT || 587);
+    if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('SMTP_PORT must be a valid port number.');
+    const user = process.env.SMTP_USER?.trim();
+    const pass = process.env.SMTP_PASSWORD;
+    if (Boolean(user) !== Boolean(pass)) throw new Error('Set both SMTP_USER and SMTP_PASSWORD, or leave both empty for an unauthenticated relay.');
+    mailTransport = nodemailer.createTransport({
+      host,
+      port,
+      secure: process.env.SMTP_SECURE === 'true' || port === 465,
+      ...(user && pass ? { auth: { user, pass } } : {}),
+    });
+  }
+
+  const from = process.env.SMTP_FROM?.trim() || process.env.SMTP_USER?.trim();
+  const to = process.env.CONTACT_NOTIFICATION_EMAIL?.trim() || COMPANY_INFO.contacts.generalEmail;
+  if (!from) throw new Error('Email sender is not configured. Set SMTP_FROM or SMTP_USER.');
+
+  await mailTransport.sendMail({
+    from,
+    to,
+    replyTo,
+    subject: `New ${kind} — Starmax Systems`,
+    text: [
+      `A new ${kind.toLowerCase()} was submitted on the Starmax Systems website.`,
+      '',
+      ...Object.entries(fields).map(([label, value]) => `${label}: ${value || 'Not provided'}`),
+    ].join('\n'),
+  });
+}
 
 const careerResumeUpload = multer({
   storage: multer.memoryStorage(),
@@ -298,7 +336,7 @@ function checkRateLimit(req: Request, res: Response, next: NextFunction) {
 // API Routes
 app.post('/api/callback', checkRateLimit, async (req: Request, res: Response) => {
   const { fullName, phone, email, service, preferredTime, message, consent } = req.body;
-  if (!fullName || !phone || !email || !service || !preferredTime || consent !== true) {
+  if (!fullName || !phone || !email || !service || !preferredTime || consent !== true || !/^\S+@\S+\.\S+$/.test(String(email).trim())) {
     return res.status(400).json({
       success: false,
       message: 'Please complete all required fields and provide consent.'
@@ -309,7 +347,7 @@ app.post('/api/callback', checkRateLimit, async (req: Request, res: Response) =>
     const database = await db();
     const createdAt = new Date();
     const normalizedName = String(fullName).trim();
-    await database.collection('callbacks').insertOne({
+    const callback = {
       fullName: normalizedName,
       phone: String(phone).trim(),
       email: String(email).trim(),
@@ -319,22 +357,36 @@ app.post('/api/callback', checkRateLimit, async (req: Request, res: Response) =>
       consent: true,
       status: 'new',
       createdAt,
-    });
+    };
+    await database.collection('callbacks').insertOne(callback);
+    try {
+      await sendLeadNotification('Callback request', {
+        Name: callback.fullName,
+        Phone: callback.phone,
+        Email: callback.email,
+        Service: callback.service,
+        'Preferred time': callback.preferredTime,
+        Message: callback.message,
+      }, callback.email);
+    } catch (error) {
+      console.error('[CALLBACK_EMAIL_FAILED]', error instanceof Error ? error.message : 'Unknown email error');
+      return res.status(503).json({ success: false, message: 'Your callback request was saved, but its email notification could not be sent. Please contact Starmax Systems directly.' });
+    }
     return res.json({
       success: true,
       message: `Thank you, ${normalizedName}. Your callback request has been received.`,
       timestamp: createdAt.toISOString(),
     });
   } catch (error) {
-    console.error('[CALLBACK_SAVE_FAILED]', error instanceof Error ? error.message : 'Unknown database error');
-    if (!res.headersSent) res.status(503).json({ success: false, message: 'We could not save your callback request. Please try again shortly.' });
+    console.error('[CALLBACK_SUBMIT_FAILED]', error instanceof Error ? error.message : 'Unknown error');
+    if (!res.headersSent) res.status(503).json({ success: false, message: 'We could not complete your callback request. Please try again shortly.' });
   }
 });
 
 app.post('/api/contact', checkRateLimit, async (req: Request, res: Response) => {
   const { fullName, email, phone, company, service, subject, message } = req.body;
 
-  if (!fullName || !email || !phone || !subject || !message || req.body.consent !== true) {
+  if (!fullName || !email || !phone || !subject || !message || req.body.consent !== true || !/^\S+@\S+\.\S+$/.test(String(email).trim())) {
     return res.status(400).json({
       success: false,
       message: 'Please complete all required fields.'
@@ -356,17 +408,31 @@ app.post('/api/contact', checkRateLimit, async (req: Request, res: Response) => 
       createdAt: new Date(),
     };
     await database.collection('enquiries').insertOne(enquiry);
+    try {
+      await sendLeadNotification('Contact enquiry', {
+        Name: enquiry.fullName,
+        Email: enquiry.email,
+        Phone: enquiry.phone,
+        Company: enquiry.company,
+        Service: enquiry.service,
+        Subject: enquiry.subject,
+        Message: enquiry.message,
+      }, enquiry.email);
+    } catch (error) {
+      console.error('[CONTACT_EMAIL_FAILED]', error instanceof Error ? error.message : 'Unknown email error');
+      return res.status(503).json({ success: false, message: 'Your message was saved, but its email notification could not be sent. Please contact Starmax Systems directly.' });
+    }
     return res.json({ success: true, message: `Thank you, ${enquiry.fullName}. Your message has been received by Starmax Systems.` });
   } catch (error) {
     console.error('[CONTACT_SUBMIT_FAILED]', error instanceof Error ? error.message : 'Unknown error');
-    if (!res.headersSent) res.status(503).json({ success: false, message: 'We could not save your enquiry. Please try again shortly.' });
+    if (!res.headersSent) res.status(503).json({ success: false, message: 'We could not complete your enquiry. Please try again shortly.' });
   }
 });
 
 app.post('/api/enquiry', checkRateLimit, async (req: Request, res: Response) => {
   const { fullName, phone, email, company, service, location, message, consent } = req.body;
 
-  if (!fullName || !phone || !email || !service || !location || consent !== true) {
+  if (!fullName || !phone || !email || !service || !location || consent !== true || !/^\S+@\S+\.\S+$/.test(String(email).trim())) {
     return res.status(400).json({
       success: false,
       message: 'Please provide required contact, location, and consent information.'
@@ -375,7 +441,7 @@ app.post('/api/enquiry', checkRateLimit, async (req: Request, res: Response) => 
 
   try {
     const createdAt = new Date();
-    await (await db()).collection('enquiries').insertOne({
+    const enquiry = {
       fullName: String(fullName).trim(),
       phone: String(phone).trim(),
       email: String(email).trim(),
@@ -386,7 +452,22 @@ app.post('/api/enquiry', checkRateLimit, async (req: Request, res: Response) => 
       consent: true,
       status: 'new',
       createdAt,
-    });
+    };
+    await (await db()).collection('enquiries').insertOne(enquiry);
+    try {
+      await sendLeadNotification('Service enquiry', {
+        Name: enquiry.fullName,
+        Phone: enquiry.phone,
+        Email: enquiry.email,
+        Company: enquiry.company,
+        Service: enquiry.service,
+        Location: enquiry.location,
+        Message: enquiry.message,
+      }, enquiry.email);
+    } catch (error) {
+      console.error('[SERVICE_ENQUIRY_EMAIL_FAILED]', error instanceof Error ? error.message : 'Unknown email error');
+      return res.status(503).json({ success: false, message: 'Your enquiry was saved, but its email notification could not be sent. Please contact Starmax Systems directly.' });
+    }
     return res.json({
       success: true,
       message: `Enquiry for ${service} at ${location} has been registered. Our technical team will follow up promptly.`,
@@ -394,7 +475,7 @@ app.post('/api/enquiry', checkRateLimit, async (req: Request, res: Response) => 
     });
   } catch (error) {
     console.error('[SERVICE_ENQUIRY_SAVE_FAILED]', error instanceof Error ? error.message : 'Unknown database error');
-    return res.status(503).json({ success: false, message: 'We could not save your enquiry. Please try again shortly.' });
+    return res.status(503).json({ success: false, message: 'We could not complete your enquiry. Please try again shortly.' });
   }
 });
 

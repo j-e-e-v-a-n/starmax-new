@@ -49,6 +49,7 @@ export const PrivacyPolicyPage: React.FC = () => {
             </p>
             <ul className="list-disc pl-5 space-y-2 text-[15px]">
               <li>To respond to your commercial queries and schedule site evaluations or telephone callbacks.</li>
+              <li>To deliver contact, callback, and service enquiry notifications to Starmax Systems using its configured email service.</li>
               <li>To prepare technical system proposals for CCTV, access control, automated gates, or other requested equipment.</li>
               <li>To review candidate qualifications and reach out to prospective applicants regarding relevant employment opportunities.</li>
             </ul>
@@ -57,7 +58,7 @@ export const PrivacyPolicyPage: React.FC = () => {
           <div>
             <h2 className="text-[1.4rem] font-normal text-navy mb-3">4. Data Protection &amp; Confidentiality</h2>
             <p className="text-[15px] leading-relaxed">
-              We do not sell, rent, or trade your personal information to third-party marketing companies. CV documents and personal contact data are treated confidentially and are accessible only to authorized personnel at Starmax Systems responsible for recruitment or client coordination.
+              We do not sell, rent, or trade your personal information to third-party marketing companies. CV documents and personal contact data are treated confidentially and are accessible only to authorized personnel at Starmax Systems responsible for recruitment or client coordination. Contact details and enquiry contents are also processed by our configured email delivery provider solely to send notifications to Starmax Systems.
             </p>
           </div>
 
@@ -82,7 +83,7 @@ export const PrivacyPolicyPage: React.FC = () => {
           </div>
 
           <div className="pt-6 border-t border-rule text-[13px] text-muted">
-            Last updated: 2025. This privacy document outlines operational practices and does not constitute formal legal counsel.
+            Last updated: 2026. This privacy document outlines operational practices and does not constitute formal legal counsel.
           </div>
         </div>
       </section>
