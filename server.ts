@@ -46,6 +46,80 @@ const media = process.env.IMAGEKIT_PUBLIC_KEY && process.env.IMAGEKIT_PRIVATE_KE
   ? new ImageKit({ publicKey: process.env.IMAGEKIT_PUBLIC_KEY, privateKey: process.env.IMAGEKIT_PRIVATE_KEY, urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT })
   : null;
 
+function escapeEmailHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;',
+    "'": '&#39;',
+  })[character] || character);
+}
+
+function buildLeadEmailHtml(kind: string, fields: Record<string, string>, replyTo: string): string {
+  const rows = Object.entries(fields).map(([label, value], index) => `
+    <tr>
+      <td style="padding:14px 16px;${index ? 'border-top:1px solid #e8edf3;' : ''}width:32%;vertical-align:top;color:#637083;font-size:13px;font-weight:600;">
+        ${escapeEmailHtml(label)}
+      </td>
+      <td style="padding:14px 16px;${index ? 'border-top:1px solid #e8edf3;' : ''}vertical-align:top;color:#14243a;font-size:14px;line-height:1.6;white-space:pre-wrap;word-break:break-word;">
+        ${escapeEmailHtml(value || 'Not provided')}
+      </td>
+    </tr>`).join('');
+  const safeReplyTo = escapeEmailHtml(replyTo);
+  const safeKind = escapeEmailHtml(kind);
+
+  return `<!doctype html>
+<html lang="en">
+  <body style="margin:0;padding:0;background:#f2f5f9;font-family:Arial,Helvetica,sans-serif;color:#14243a;">
+    <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="background:#f2f5f9;padding:32px 12px;">
+      <tr>
+        <td align="center">
+          <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="600" style="width:100%;max-width:600px;background:#ffffff;border:1px solid #e2e8f0;">
+            <tr>
+              <td style="padding:24px 28px;background:#071039;border-bottom:4px solid #2475b8;">
+                <div style="font-size:20px;line-height:1.2;font-weight:700;letter-spacing:.3px;color:#ffffff;">STARMAX <span style="color:#76b9f1;">SYSTEMS</span></div>
+                <div style="padding-top:6px;color:#cbd5e1;font-size:11px;letter-spacing:1.5px;">SECURITY SYSTEMS &amp; AUTOMATION</div>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:28px 28px 12px;">
+                <div style="color:#2475b8;font-size:11px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;">Website notification</div>
+                <h1 style="margin:8px 0 8px;color:#10243a;font-size:24px;line-height:1.3;">New ${safeKind}</h1>
+                <p style="margin:0;color:#637083;font-size:14px;line-height:1.6;">A new request was submitted through the Starmax Systems website. Details are below.</p>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:16px 28px 24px;">
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" width="100%" style="border:1px solid #e8edf3;border-collapse:collapse;">
+                  ${rows}
+                </table>
+                <table role="presentation" cellpadding="0" cellspacing="0" border="0" style="margin-top:22px;">
+                  <tr>
+                    <td style="background:#174a78;">
+                      <a href="mailto:${safeReplyTo}" style="display:inline-block;padding:12px 18px;color:#ffffff;text-decoration:none;font-size:13px;font-weight:700;">Reply to customer</a>
+                    </td>
+                    <td style="padding-left:10px;">
+                      <a href="tel:${COMPANY_INFO.contacts.primaryPhoneRaw}" style="display:inline-block;padding:11px 16px;border:1px solid #d6deea;color:#174a78;text-decoration:none;font-size:13px;font-weight:700;">Call Starmax</a>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+            <tr>
+              <td style="padding:18px 28px;background:#f8fafc;border-top:1px solid #e8edf3;color:#748094;font-size:12px;line-height:1.6;">
+                Starmax Systems · ${escapeEmailHtml(COMPANY_INFO.registeredOffice.shortAddress)}<br />
+                <a href="https://starmaxsystems.com" style="color:#2475b8;text-decoration:none;">starmaxsystems.com</a>
+              </td>
+            </tr>
+          </table>
+        </td>
+      </tr>
+    </table>
+  </body>
+</html>`;
+}
+
 async function sendLeadNotification(kind: string, fields: Record<string, string>, replyTo: string) {
   const host = process.env.SMTP_HOST?.trim();
   if (!host) throw new Error('Email is not configured. Set SMTP_HOST and SMTP credentials.');
@@ -54,7 +128,10 @@ async function sendLeadNotification(kind: string, fields: Record<string, string>
     const port = Number(process.env.SMTP_PORT || 587);
     if (!Number.isInteger(port) || port < 1 || port > 65535) throw new Error('SMTP_PORT must be a valid port number.');
     const user = process.env.SMTP_USER?.trim();
-    const pass = process.env.SMTP_PASSWORD;
+    const configuredPassword = process.env.SMTP_PASSWORD;
+    const pass = host.toLowerCase() === 'smtp.gmail.com'
+      ? configuredPassword?.replace(/\s/g, '')
+      : configuredPassword;
     if (Boolean(user) !== Boolean(pass)) throw new Error('Set both SMTP_USER and SMTP_PASSWORD, or leave both empty for an unauthenticated relay.');
     mailTransport = nodemailer.createTransport({
       host,
@@ -77,7 +154,11 @@ async function sendLeadNotification(kind: string, fields: Record<string, string>
       `A new ${kind.toLowerCase()} was submitted on the Starmax Systems website.`,
       '',
       ...Object.entries(fields).map(([label, value]) => `${label}: ${value || 'Not provided'}`),
+      '',
+      `Reply to customer: mailto:${replyTo}`,
+      `Call Starmax: tel:${COMPANY_INFO.contacts.primaryPhoneRaw}`,
     ].join('\n'),
+    html: buildLeadEmailHtml(kind, fields, replyTo),
   });
 }
 
