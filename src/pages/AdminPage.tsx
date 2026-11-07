@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ArrowUpRight, ImagePlus, LogOut, Mail, Phone, Plus, Save, Trash2, X } from 'lucide-react';
 import { useRouter } from '../router';
 
@@ -40,6 +40,13 @@ export const AdminPage: React.FC = () => {
   const [notice, setNotice] = useState('');
   const [noticeType, setNoticeType] = useState<'error' | 'success'>('success');
   const [busy, setBusy] = useState(false);
+  const editorRef = useRef<HTMLElement | null>(null);
+
+  const scrollToEditor = () => {
+    window.requestAnimationFrame(() => {
+      editorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  };
 
   const request = async (url: string, init: RequestInit = {}): Promise<ApiResult> => {
     const response = await fetch(url, {
@@ -114,6 +121,7 @@ export const AdminPage: React.FC = () => {
   const startNewItem = () => {
     setSelected({ active: true, order: items.length + 1, ...(tab === 'gallery' ? { category: 'cctv' } : {}), ...(tab === 'testimonials' ? { rating: 5 } : {}) });
     setNotice('');
+    scrollToEditor();
   };
 
   const save = async (event: React.FormEvent) => {
@@ -383,16 +391,16 @@ export const AdminPage: React.FC = () => {
           <section className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-3"><div><h2 className="text-2xl capitalize">{tab} directory</h2><p className="mt-1 text-sm text-muted">Select an item to edit or add a new one.</p></div><button type="button" onClick={startNewItem} className="btn solid"><Plus className="h-4 w-4" /> Add {tab === 'clients' ? 'client' : tab === 'gallery' ? 'gallery item' : 'testimonial'}</button></div>
             {busy && !items.length && <p className="border border-rule bg-white p-5 text-sm text-muted">Loading {tab}…</p>}
-            {items.map((item) => <article key={String(item.id)} className={`flex items-center gap-3 border bg-white p-3 sm:p-4 ${selected.id === item.id ? 'border-blue ring-1 ring-blue/20' : 'border-rule'}`}>
-              {Boolean(item.image || item.avatar || item.logo) && <img src={String(item.image || item.avatar || item.logo)} alt="" className="h-12 w-16 shrink-0 rounded-sm border border-rule bg-mist object-contain p-1" />}
-              <button type="button" onClick={() => { setSelected(item); setNotice(''); }} className="min-w-0 flex-1 text-left"><strong className="block truncate text-sm">{String(item.name || item.title || item.quote || 'Untitled')}</strong><span className="mt-1 block truncate text-xs text-muted">{String(item.industry || item.categoryLabel || item.clientReference || '')}</span></button>
+            {items.map((item) => <article key={String(item.id)} className={`flex min-w-0 items-center gap-2 border bg-white p-2.5 sm:gap-3 sm:p-4 ${selected.id === item.id ? 'border-blue ring-1 ring-blue/20' : 'border-rule'}`}>
+              {Boolean(item.image || item.avatar || item.logo) && <img src={String(item.image || item.avatar || item.logo)} alt="" className="h-11 w-12 shrink-0 rounded-sm border border-rule bg-mist object-contain p-1 sm:h-12 sm:w-16" />}
+              <button type="button" onClick={() => { setSelected(item); setNotice(''); scrollToEditor(); }} className="min-w-0 flex-1 text-left"><strong className="block truncate text-sm">{String(item.name || item.title || item.quote || 'Untitled')}</strong><span className="mt-1 block truncate text-xs text-muted">{String(item.industry || item.categoryLabel || item.clientReference || '')}</span></button>
               <span className={`hidden rounded-full px-2 py-1 text-[10px] sm:inline-block ${item.active === false ? 'bg-mist text-muted' : 'bg-emerald-50 text-emerald-700'}`}>{item.active === false ? 'Hidden' : 'Published'}</span>
-              <button type="button" onClick={() => void remove(String(item.id))} disabled={busy} aria-label={`Delete ${String(item.name || item.title || 'item')}`} className="rounded-sm p-2 text-muted hover:bg-red-50 hover:text-red-700 disabled:opacity-50"><Trash2 className="h-4 w-4" /></button>
+              <button type="button" onClick={() => void remove(String(item.id))} disabled={busy} aria-label={`Delete ${String(item.name || item.title || 'item')}`} className="inline-flex min-h-10 min-w-10 shrink-0 items-center justify-center gap-1 rounded-sm border border-red-200 px-2 text-red-700 hover:bg-red-50 disabled:opacity-50 sm:px-2.5"><Trash2 className="h-4 w-4" /><span className="text-xs font-medium sm:hidden">Delete</span></button>
             </article>)}
             {!busy && !items.length && <div className="border border-dashed border-rule bg-white p-8 text-center"><p className="font-medium">No {tab} yet</p><p className="mt-1 text-sm text-muted">Add your first item to publish it on the website.</p><button type="button" onClick={startNewItem} className="btn outline mt-4"><Plus className="h-4 w-4" /> Add {tab === 'clients' ? 'client' : tab === 'gallery' ? 'gallery item' : 'testimonial'}</button></div>}
           </section>
 
-          <section className="border border-rule bg-white p-5 sm:p-6">
+          <section ref={editorRef} className="scroll-mt-5 border border-rule bg-white p-5 sm:scroll-mt-8 sm:p-6">
             <div className="mb-5 flex items-start justify-between gap-3"><div><p className="label mb-1">{selected.id ? 'Edit existing content' : 'New website content'}</p><h2 className="text-2xl">{selected.id ? 'Edit item' : 'Add item'}</h2></div>{Object.keys(selected).length > 0 && <button type="button" onClick={() => setSelected({})} className="rounded-sm p-2 text-muted hover:bg-mist" aria-label="Close editor"><X className="h-4 w-4" /></button>}</div>
             {Object.keys(selected).length === 0 ? <div className="rounded-sm bg-mist p-5 text-sm text-muted">Choose an item from the list, or select <strong>Add {tab === 'clients' ? 'client' : tab === 'gallery' ? 'gallery item' : 'testimonial'}</strong> to start a new one.</div> : <form onSubmit={(event) => void save(event)} className="space-y-4">
               {fields[tab].map((field) => <label key={field} className="block text-sm font-medium">{labels[field]}{['quote', 'caption', 'context'].includes(field) ? <textarea required={field === 'quote' || field === 'caption'} rows={field === 'quote' ? 5 : 3} value={String(selected[field] ?? '')} onChange={(event) => updateField(field, event.target.value)} className={inputClass} /> : field === 'category' ? <select required value={String(selected.category ?? 'cctv')} onChange={(event) => updateField('category', event.target.value)} className={inputClass}>{categories.map((option) => <option key={option.value} value={option.value}>{option.label}</option>)}</select> : field === 'active' ? <span className="mt-2 flex items-center gap-2"><input type="checkbox" checked={selected.active !== false} onChange={(event) => updateField('active', event.target.checked)} className="h-4 w-4 accent-[#1a3bb0]" /><span className="text-sm text-muted">Visible on public website</span></span> : <input required={['name', 'title', 'image'].includes(field) || (tab === 'testimonials' && field === 'quote')} type={field === 'order' || field === 'rating' ? 'number' : 'text'} min={field === 'rating' ? 1 : undefined} max={field === 'rating' ? 5 : undefined} value={String(selected[field] ?? '')} onChange={(event) => updateField(field, field === 'order' || field === 'rating' ? Number(event.target.value) : event.target.value)} placeholder={field.includes('image') || field === 'avatar' ? 'https://…' : ''} className={inputClass} />}</label>)}
