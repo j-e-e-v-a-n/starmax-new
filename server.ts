@@ -183,7 +183,9 @@ app.get('/api/admin/enquiries', requireAdmin, async (_req: Request, res: Respons
     const data = combined.map(({ record, kind }) => {
       const { _id, ...item } = record;
       const source = kind === 'Enquiry' ? 'enquiries' : kind === 'Callback request' ? 'callbacks' : 'careerApplications';
-      return { ...item, kind, source, status: item.status === 'closed' ? 'closed' : 'open', id: String(_id) };
+      const validStatuses = ['new', 'open', 'in-progress', 'closed'];
+      const status = validStatuses.includes(String(item.status)) ? String(item.status) : 'new';
+      return { ...item, kind, source, status, id: String(_id) };
     });
     return res.json({ success: true, data });
   } catch (error) { return res.status(503).json({ success: false, message: error instanceof Error ? error.message : 'Inbox unavailable.' }); }
@@ -194,7 +196,9 @@ app.patch('/api/admin/enquiries/:source/:id', requireAdmin, async (req: Request,
   const status = req.body.status;
   if (!allowedSources.includes(req.params.source)) return res.status(404).json({ success: false, message: 'Unknown request type.' });
   if (!ObjectId.isValid(req.params.id)) return res.status(400).json({ success: false, message: 'Invalid request ID.' });
-  if (status !== 'open' && status !== 'closed') return res.status(400).json({ success: false, message: 'Status must be open or closed.' });
+  if (!['new', 'open', 'in-progress', 'closed'].includes(status)) {
+    return res.status(400).json({ success: false, message: 'Choose a valid request status.' });
+  }
   try {
     const result = await (await db()).collection(req.params.source).updateOne(
       { _id: new ObjectId(req.params.id) },

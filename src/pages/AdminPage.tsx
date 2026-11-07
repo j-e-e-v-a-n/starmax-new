@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ArrowUpRight, Check, ImagePlus, LogOut, Mail, Phone, Plus, RotateCcw, Save, Trash2, X } from 'lucide-react';
+import { ArrowUpRight, ImagePlus, LogOut, Mail, Phone, Plus, Save, Trash2, X } from 'lucide-react';
 import { useRouter } from '../router';
 
 type Tab = 'clients' | 'gallery' | 'testimonials' | 'enquiries' | 'admins';
@@ -170,10 +170,9 @@ export const AdminPage: React.FC = () => {
     finally { setBusy(false); }
   };
 
-  const updateEnquiryStatus = async (item: RecordItem) => {
+  const updateEnquiryStatus = async (item: RecordItem, status: string) => {
     const source = String(item.source || '');
     const id = String(item.id || '');
-    const status = item.status === 'closed' ? 'open' : 'closed';
     setBusy(true);
     setNotice('');
     try {
@@ -182,7 +181,7 @@ export const AdminPage: React.FC = () => {
         body: JSON.stringify({ status }),
       });
       setItems((current) => current.map((entry) => entry.id === item.id && entry.source === item.source ? { ...entry, status } : entry));
-      setNotice(status === 'closed' ? 'Request marked closed.' : 'Request reopened.');
+      setNotice('Request status updated.');
       setNoticeType('success');
     } catch (error) {
       setNotice(error instanceof Error ? error.message : 'Could not update request status.');
@@ -351,14 +350,22 @@ export const AdminPage: React.FC = () => {
                   </button>
                 )}
                 <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-rule pt-3">
-                  <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-medium ${item.status === 'closed' ? 'bg-mist text-muted' : 'bg-emerald-50 text-emerald-700'}`}>
-                    {item.status === 'closed' ? 'Closed' : 'Open'}
-                  </span>
+                  <label className="flex min-h-10 flex-1 items-center gap-2 text-sm font-medium sm:flex-none">
+                    <span>Status</span>
+                    <select
+                      aria-label={`Status for ${String(item.subject || item.fullName || 'customer request')}`}
+                      disabled={busy}
+                      value={String(item.status || 'new')}
+                      onChange={(event) => void updateEnquiryStatus(item, event.target.value)}
+                      className={`${inputClass} mt-0 min-h-10 min-w-36 py-2`}
+                    >
+                      <option value="new">New</option>
+                      <option value="open">Open</option>
+                      <option value="in-progress">In progress</option>
+                      <option value="closed">Closed</option>
+                    </select>
+                  </label>
                   <div className="flex w-full flex-wrap gap-2 sm:w-auto">
-                    <button type="button" disabled={busy} onClick={() => void updateEnquiryStatus(item)} className="btn outline min-h-10 flex-1 justify-center sm:flex-none">
-                      {item.status === 'closed' ? <RotateCcw className="h-4 w-4" /> : <Check className="h-4 w-4" />}
-                      {item.status === 'closed' ? 'Reopen' : 'Mark closed'}
-                    </button>
                     <button type="button" disabled={busy} onClick={() => void deleteEnquiry(item)} className="btn outline min-h-10 flex-1 justify-center border-red-200 text-red-700 hover:bg-red-50 sm:flex-none">
                       <Trash2 className="h-4 w-4" /> Delete
                     </button>
